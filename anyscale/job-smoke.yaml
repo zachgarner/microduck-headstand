@@ -1,0 +1,23 @@
+# The 5-iteration, 64-env smoke job (AGENTS.md: always run first). Same as
+# job.yaml otherwise; see that file for the compute choices.
+#   anyscale job submit -f scripts/anyscale/job-smoke.yaml --working-dir . --env WANDB_API_KEY=$(python3 -c 'import netrc; print(netrc.netrc().authenticators("api.wandb.ai")[2])')
+name: microduck-headstand-smoke
+entrypoint: bash scripts/anyscale/train.sh Mjlab-Headstand-Flat-MicroDuck --env.scene.num-envs 64 --agent.max_iterations 5
+image_uri: anyscale/ray:2.58.0-py313-cu130
+compute_config:
+  cloud: aws-public-us-west-2
+  head_node:
+    instance_type: g6.2xlarge
+  worker_nodes: []
+excludes:
+  - .git
+  - .venv
+  - logs
+  - wandb
+  - policies
+  - __pycache__
+  - "*.onnx"
+env_vars:
+  RUN_NAME: headstand-smoke
+max_retries: 0
+timeout_s: 3600

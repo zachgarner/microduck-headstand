@@ -4,6 +4,8 @@
 #
 #   bash scripts/anyscale/train.sh Mjlab-Headstand-Flat-MicroDuck --env.scene.num-envs 4096 --agent.max_iterations 3000
 #
+# Runs on the job's head node, which the job config makes a GPU instance (a
+# single-process trainer, so the GPU has to be where the entrypoint runs).
 # Checkpoints go to $ANYSCALE_ARTIFACT_STORAGE/microduck/<run-name>/ every
 # 5 minutes and once more at exit, so a killed job still leaves its models.
 # wandb: online if WANDB_API_KEY is set (job env_vars), offline otherwise.
@@ -13,6 +15,11 @@ TASK="$1"; shift
 RUN_NAME="${RUN_NAME:-${TASK}-$(date +%Y%m%d-%H%M%S)}"
 DEST="${ANYSCALE_ARTIFACT_STORAGE:?ANYSCALE_ARTIFACT_STORAGE is set by Anyscale on every job}/microduck/${RUN_NAME}"
 
+# Anyscale's base image has no uv; the repo needs it (and its own Python 3.12).
+if ! command -v uv >/dev/null; then
+  pip install --quiet --user uv
+  export PATH="$HOME/.local/bin:$PATH"
+fi
 export UV_CACHE_DIR="${UV_CACHE_DIR:-/mnt/cluster_storage/uv-cache}"
 export UV_HTTP_TIMEOUT=600
 if [ -z "${WANDB_API_KEY:-}" ]; then export WANDB_MODE=offline; fi

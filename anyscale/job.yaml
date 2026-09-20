@@ -1,12 +1,22 @@
-# Anyscale job for one training run. Submit from the repo root:
-#   anyscale job submit -f scripts/anyscale/job.yaml
-# Edit `entrypoint` for the task and iteration count. The compute config is
-# filled in after `anyscale login` says which cloud this account has (the GPU
-# instance type name differs between AWS and GCP): see issue #5.
+# Anyscale job for one training run. Submit from the repo root, passing the
+# wandb key on the command line (this CLI, 0.26, does NOT substitute ${VAR}
+# placeholders inside the YAML; a literal placeholder reached the job):
+#   anyscale job submit -f scripts/anyscale/job.yaml --working-dir . --env WANDB_API_KEY=$(python3 -c 'import netrc; print(netrc.netrc().authenticators("api.wandb.ai")[2])')
+# Edit `entrypoint` for the task and iteration count.
+#
+# Single-node, GPU on the HEAD node: the trainer is one process, so the GPU has
+# to be where the entrypoint runs. Zach's cloud is aws-public-us-west-2.
+# g6.2xlarge = one L4 (24 GB), 8 vCPU, 32 GB RAM, on-demand: the same class as
+# Pollen's default HF Jobs flavor (l4x1). No spot: a preempted single node
+# kills the run (checkpoints would survive, the wandb curves would not).
 name: microduck-headstand
 entrypoint: bash scripts/anyscale/train.sh Mjlab-Headstand-Flat-MicroDuck --env.scene.num-envs 4096 --agent.max_iterations 3000
-containerfile: scripts/anyscale/Dockerfile
-working_dir: .
+image_uri: anyscale/ray:2.58.0-py313-cu130   # the microduck workspace's image; uv brings its own Python 3.12
+compute_config:
+  cloud: aws-public-us-west-2
+  head_node:
+    instance_type: g6.2xlarge
+  worker_nodes: []
 excludes:
   - .git
   - .venv
