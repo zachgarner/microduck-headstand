@@ -21,7 +21,7 @@ from pathlib import Path
 
 JOB_TEMPLATE = """name: microduck-headstand-grid
 entrypoint: bash scripts/anyscale/train_multi.sh Mjlab-Headstand-Flat-MicroDuck --env.scene.num-envs 4096 --agent.max_iterations {iterations}
-image_uri: anyscale/ray:2.58.0-py313-cu130
+image_uri: anyscale/image/microduck-train:1
 compute_config:
   cloud: aws-public-us-west-2
   head_node:
