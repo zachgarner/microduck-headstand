@@ -25,6 +25,26 @@ if [ -z "${WANDB_API_KEY:-}" ]; then export WANDB_MODE=offline; fi
 mkdir -p logs
 mkdir -p logs
 nvidia-smi
+# Warp compiles its GPU kernels on first use (~8 min at 4096 envs). Keep the
+# compiled cache in the artifact bucket, keyed by GPU name, and restore it: a
+# job on the same GPU type then starts training within a minute.
+GPU_KEY=$(nvidia-smi --query-gpu=name --format=csv,noheader | head -1 | tr -c 'A-Za-z0-9' '_')
+WARP_CACHE_REMOTE="${ANYSCALE_ARTIFACT_STORAGE}/microduck/warp-cache/${GPU_KEY}/"
+WARP_CACHE_LOCAL="$HOME/.cache/warp"
+restore_warp_cache() {
+  mkdir -p "$WARP_CACHE_LOCAL"
+  case "$WARP_CACHE_REMOTE" in
+    s3://*) aws s3 sync "$WARP_CACHE_REMOTE" "$WARP_CACHE_LOCAL" --quiet && echo "warp cache restored for $GPU_KEY" ;;
+    gs://*) gcloud storage rsync -r "$WARP_CACHE_REMOTE" "$WARP_CACHE_LOCAL" && echo "warp cache restored for $GPU_KEY" ;;
+  esac
+}
+save_warp_cache() {
+  case "$WARP_CACHE_REMOTE" in
+    s3://*) aws s3 sync "$WARP_CACHE_LOCAL" "$WARP_CACHE_REMOTE" --quiet ;;
+    gs://*) gcloud storage rsync -r "$WARP_CACHE_LOCAL" "$WARP_CACHE_REMOTE" ;;
+  esac
+}
+restore_warp_cache || true
 uv sync --frozen
 NGPU=$(uv run python -c "import torch; assert torch.cuda.is_available(); print(torch.cuda.device_count())")
 echo "gpus: $NGPU"
@@ -37,7 +57,7 @@ sync_logs() {
 }
 ( while true; do sleep 300; sync_logs || true; done ) &
 SYNC_PID=$!
-trap 'kill $SYNC_PID 2>/dev/null || true; sync_logs || true; echo "checkpoints: $DEST/logs/"' EXIT
+trap 'kill $SYNC_PID 2>/dev/null || true; sync_logs || true; save_warp_cache || true; echo "checkpoints: $DEST/logs/"' EXIT
 
 # One line per variant: "<index>\t<name>\t<KEY=VAL KEY=VAL ...>"
 uv run python - "$NGPU" <<'EOF' > /tmp/variants.tsv
@@ -49,6 +69,7 @@ for i, v in enumerate(variants):
     print(f"{i}\t{v['name']}\t" + " ".join(f"{k}={val}" for k, val in v.get("env", {}).items()))
 EOF
 
+( sleep 900; save_warp_cache || true ) &
 PIDS=()
 while IFS=$'\t' read -r idx name knobs; do
   echo "[$name] gpu $idx knobs: $knobs"
