@@ -82,17 +82,24 @@ def run_bucket(env, wrapped, policy, bucket: str, record: bool, video_length: in
     # Stop one step short of the time-out: on the final step mjlab auto-resets
     # the env and the state read afterwards would be the NEXT spawn.
     steps = int(env.max_episode_length) - 1
+    peak = torch.zeros(env.num_envs)
     with torch.no_grad():
         for t in range(steps):
             actions = policy(obs)
             obs, _, dones, _ = wrapped.step(actions)
+            f = microduck_mdp._head_floor_force(env)
+            if f is not None:
+                peak = torch.maximum(peak, f.cpu())
             if record and t < video_length:
                 frames.append(env.render())
+    env._eval_peak_force = peak
     asset = env.scene["robot"]
     inv = microduck_mdp._inverted_cos(asset).cpu().numpy()
     touching = floor_bodies(env)
     labels = [classify(float(inv[i]), touching[i]) for i in range(env.num_envs)]
-    return labels, frames
+    slammed = int(env._headstand_slammed.sum()) if hasattr(env, "_headstand_slammed") else None
+    peak = getattr(env, "_eval_peak_force", None)
+    return labels, frames, slammed, peak
 
 
 def main():
@@ -143,10 +150,15 @@ def main():
     summary = {}
     for bucket in args.buckets.split(","):
         record = bucket == "standing"
-        labels, frames = run_bucket(env, wrapped, policy, bucket, record, args.video_length)
+        labels, frames, slammed, peak = run_bucket(env, wrapped, policy, bucket, record, args.video_length)
         counts = {k: labels.count(k) for k in sorted(set(labels))}
         summary[bucket] = counts
-        print(f"{bucket:9s} n={len(labels):3d}  " + "  ".join(f"{k}={v}" for k, v in counts.items()))
+        extra = ""
+        if peak is not None:
+            extra = f"  head force median={float(peak.median()):.1f}N max={float(peak.max()):.1f}N"
+        if slammed is not None:
+            extra += f"  slam-marked={slammed}"
+        print(f"{bucket:9s} n={len(labels):3d}  " + "  ".join(f"{k}={v}" for k, v in counts.items()) + extra)
         if record and frames:
             fps = int(round(1.0 / env.step_dt))
             imageio.mimwrite(video, frames, fps=fps, quality=8)
