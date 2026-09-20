@@ -52,10 +52,12 @@ def floor_bodies(env) -> list[set]:
     return out
 
 
-def classify(inverted_cos: float, touching: set) -> str:
+def classify(inverted_cos: float, touching: set, nose_up: float = 0.0) -> str:
     inverted = inverted_cos > math.cos(math.radians(35.0))
     if inverted and touching == {"head"}:
         return "headstand"
+    if nose_up > 0.3 and "head" in touching:
+        return "fell_backward"   # top of the head down, feet out front, nose up
     if touching == {"head", "foot"}:
         return "tripod"
     if inverted and not touching:
@@ -95,8 +97,9 @@ def run_bucket(env, wrapped, policy, bucket: str, record: bool, video_length: in
     env._eval_peak_force = peak
     asset = env.scene["robot"]
     inv = microduck_mdp._inverted_cos(asset).cpu().numpy()
+    nose = microduck_mdp._nose_up(asset).cpu().numpy()
     touching = floor_bodies(env)
-    labels = [classify(float(inv[i]), touching[i]) for i in range(env.num_envs)]
+    labels = [classify(float(inv[i]), touching[i], float(nose[i])) for i in range(env.num_envs)]
     slammed = int(env._headstand_slammed.sum()) if hasattr(env, "_headstand_slammed") else None
     peak = getattr(env, "_eval_peak_force", None)
     return labels, frames, slammed, peak
