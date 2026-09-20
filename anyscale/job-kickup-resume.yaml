@@ -10,7 +10,7 @@
 # Pollen's default HF Jobs flavor (l4x1). No spot: a preempted single node
 # kills the run (checkpoints would survive, the wandb curves would not).
 name: microduck-headstand-kickup
-entrypoint: bash scripts/anyscale/train.sh Mjlab-HeadstandKickup-Flat-MicroDuck --env.scene.num-envs 4096 --agent.max_iterations 1000
+entrypoint: bash scripts/anyscale/train.sh Mjlab-HeadstandKickup-Flat-MicroDuck --env.scene.num-envs 4096 --agent.max_iterations 3000 --agent.resume True --wandb-run-path zachgarner-ai/mjlab_microduck/y5q58y6f --wandb-checkpoint-name model_999.pt
 image_uri: anyscale/image/microduck-train:1   # scripts/anyscale/Dockerfile: env pre-synced, no 5-minute uv sync per job
 compute_config:
   cloud: aws-public-us-west-2
@@ -26,6 +26,6 @@ excludes:
   - __pycache__
   - "*.onnx"
 env_vars:
-  RUN_NAME: headstand-kickup-2
+  RUN_NAME: headstand-kickup-2-cont
 max_retries: 0
 timeout_s: 43200
