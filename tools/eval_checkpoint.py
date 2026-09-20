@@ -71,11 +71,29 @@ def classify(inverted_cos: float, touching: set, nose_up: float = 0.0) -> str:
 
 
 def force_spawn(env, bucket: str):
-    """Point the spawn event at one bucket via the manager (cfg writes are no-ops)."""
+    """Point the spawn event at one bucket via the manager (cfg writes are no-ops).
+
+    "tripod" is the partway bucket pinned to 90-110° with legs near HOME: head
+    down, feet down, the state the kick-up policy has to leave.
+    """
     term = env.event_manager.get_term_cfg("set_headstand_spawn")
     term.params["standing_prob"] = 1.0 if bucket == "standing" else 0.0
-    term.params["partway_prob"] = 1.0 if bucket == "partway" else 0.0
+    term.params["partway_prob"] = 1.0 if bucket in ("partway", "tripod") else 0.0
     term.params["hold_prob"] = 1.0 if bucket == "hold" else 0.0
+    if bucket == "tripod":
+        term.params["partway_pitch_min"] = math.radians(90.0)
+        term.params["partway_pitch_max"] = math.radians(110.0)
+        term.params["partway_lerp_range"] = (0.0, 0.3)
+    elif bucket.startswith("pitch"):   # e.g. "pitch150": dropped head-down at that angle
+        deg = float(bucket[5:])
+        term.params["partway_prob"] = 1.0
+        term.params["partway_pitch_min"] = math.radians(deg)
+        term.params["partway_pitch_max"] = math.radians(deg + 1.0)
+        term.params["partway_lerp_range"] = (0.0, 0.3)
+    else:
+        term.params["partway_pitch_min"] = env.cfg.events["set_headstand_spawn"].params["partway_pitch_min"]
+        term.params["partway_pitch_max"] = env.cfg.events["set_headstand_spawn"].params["partway_pitch_max"]
+        term.params["partway_lerp_range"] = env.cfg.events["set_headstand_spawn"].params["partway_lerp_range"]
 
 
 def run_bucket(env, wrapped, policy, bucket: str, record: bool, video_length: int):
@@ -115,6 +133,7 @@ def main():
     p.add_argument("--video", default=None, help="output mp4 (default: renders/headstand_<ckpt>.mp4)")
     p.add_argument("--video-length", type=int, default=300)
     p.add_argument("--buckets", default="standing,partway,hold")
+    p.add_argument("--record-bucket", default="standing", help="which bucket the video shows")
     args = p.parse_args()
 
     if args.checkpoint_file:
@@ -153,7 +172,7 @@ def main():
     Path(video).parent.mkdir(parents=True, exist_ok=True)
     summary = {}
     for bucket in args.buckets.split(","):
-        record = bucket == "standing"
+        record = bucket == args.record_bucket
         labels, frames, slammed, peak = run_bucket(env, wrapped, policy, bucket, record, args.video_length)
         counts = {k: labels.count(k) for k in sorted(set(labels))}
         summary[bucket] = counts
