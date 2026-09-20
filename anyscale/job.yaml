@@ -26,6 +26,6 @@ excludes:
   - __pycache__
   - "*.onnx"
 env_vars:
-  RUN_NAME: headstand-run-1
+  RUN_NAME: headstand-run-2
 max_retries: 0
 timeout_s: 43200
