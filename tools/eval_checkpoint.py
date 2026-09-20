@@ -15,6 +15,7 @@ down. Numbers are what the rollouts show, nothing is extrapolated.
 """
 
 import argparse
+import os
 import math
 from dataclasses import asdict
 from pathlib import Path
@@ -29,7 +30,7 @@ from mjlab.tasks.registry import load_env_cfg, load_rl_cfg, load_runner_cls
 
 from mjlab_microduck.tasks import mdp as microduck_mdp
 
-TASK = "Mjlab-Headstand-Flat-MicroDuck"
+TASK = os.environ.get("HEADSTAND_TASK", "Mjlab-Headstand-Flat-MicroDuck")  # or Mjlab-HeadstandKickup-Flat-MicroDuck
 HEAD = {"jaw_soft", "yaw_roll_motion", "neck_pitch"}
 FEET = {"ankle_left", "ankle_right"}
 
@@ -120,7 +121,7 @@ def main():
         ckpt = Path(args.checkpoint_file)
     else:
         assert args.wandb_run_path and args.checkpoint, "give --wandb-run-path and --checkpoint, or --checkpoint-file"
-        log_root = Path("logs") / "rsl_rl" / "microduck_headstand"
+        log_root = Path("logs") / "rsl_rl" / ("microduck_headstand_kickup" if "Kickup" in TASK else "microduck_headstand")
         run_id = args.wandb_run_path.split("/")[-1]
         ckpt = log_root / "wandb_checkpoints" / run_id / args.checkpoint
         if not ckpt.exists():
