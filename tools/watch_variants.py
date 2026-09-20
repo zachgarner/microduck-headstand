@@ -47,17 +47,20 @@ while time.time() < deadline:
                 continue
             n = re.search(r"model_(\d+)", ck).group(1)
             video = f"renders/{args.tag}_{name}_{n}.mp4"
+            kickup = "Kickup" in os.environ.get("HEADSTAND_TASK", "")
+            buckets = ["--buckets", "tripod,partway,hold", "--record-bucket", "tripod"] if kickup else []
             out = subprocess.run(
                 ["uv", "run", "scripts/headstand/eval_checkpoint.py", "--wandb-run-path",
-                 f"zachgarner-ai/mjlab_microduck/{r.id}", "--checkpoint", ck, "--episodes", str(args.episodes), "--video", video],
+                 f"zachgarner-ai/mjlab_microduck/{r.id}", "--checkpoint", ck, "--episodes", str(args.episodes), "--video", video, *buckets],
                 capture_output=True, text=True, env={**os.environ, "WANDB_MODE": "offline"})
-            lines = [l for l in out.stdout.splitlines() if re.match(r"^(standing|partway|hold) ", l)]
+            lines = [l for l in out.stdout.splitlines() if re.match(r"^(standing|tripod|partway|hold) ", l)]
             block = f"== variant {name} ({r.id}) iteration {n}\n" + "\n".join(lines) + "\n"
             print(block, flush=True)
             with results.open("a") as f:
                 f.write(block)
             if Path(video).exists():
-                shutil.copy(video, desktop / f"variant{name}_{args.tag}_iter{n}_standing_start.mp4")
+                start = "tripod_start" if kickup else "standing_start"
+                shutil.copy(video, desktop / f"variant{name}_{args.tag}_iter{n}_{start}.mp4")
             done.add(key)
     if len(done) >= len(names) * len(ckpts):
         break
