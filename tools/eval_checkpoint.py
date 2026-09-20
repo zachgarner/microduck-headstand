@@ -78,13 +78,10 @@ def force_spawn(env, bucket: str):
     """
     term = env.event_manager.get_term_cfg("set_headstand_spawn")
     term.params["standing_prob"] = 1.0 if bucket == "standing" else 0.0
-    term.params["partway_prob"] = 1.0 if bucket in ("partway", "tripod") else 0.0
+    term.params["partway_prob"] = 1.0 if bucket == "partway" else 0.0
     term.params["hold_prob"] = 1.0 if bucket == "hold" else 0.0
-    if bucket == "tripod":
-        term.params["partway_pitch_min"] = math.radians(90.0)
-        term.params["partway_pitch_max"] = math.radians(110.0)
-        term.params["partway_lerp_range"] = (0.0, 0.3)
-    elif bucket.startswith("pitch"):   # e.g. "pitch150": dropped head-down at that angle
+    term.params["tripod_prob"] = 1.0 if bucket == "tripod" else 0.0   # the measured RESTING tripod
+    if bucket.startswith("pitch"):   # e.g. "pitch150": dropped head-down at that angle
         deg = float(bucket[5:])
         term.params["partway_prob"] = 1.0
         term.params["partway_pitch_min"] = math.radians(deg)
