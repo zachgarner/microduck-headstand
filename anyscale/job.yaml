@@ -1,0 +1,21 @@
+# Anyscale job for one training run. Submit from the repo root:
+#   anyscale job submit -f scripts/anyscale/job.yaml
+# Edit `entrypoint` for the task and iteration count. The compute config is
+# filled in after `anyscale login` says which cloud this account has (the GPU
+# instance type name differs between AWS and GCP): see issue #5.
+name: microduck-headstand
+entrypoint: bash scripts/anyscale/train.sh Mjlab-Headstand-Flat-MicroDuck --env.scene.num-envs 4096 --agent.max_iterations 3000
+containerfile: scripts/anyscale/Dockerfile
+working_dir: .
+excludes:
+  - .git
+  - .venv
+  - logs
+  - wandb
+  - policies
+  - __pycache__
+  - "*.onnx"
+env_vars:
+  RUN_NAME: headstand-run-1
+max_retries: 0
+timeout_s: 43200
