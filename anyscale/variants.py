@@ -27,8 +27,8 @@ VARIANTS = {
           "looser slam gate: 12 N may forbid every real landing"),
     "C": ({"HEADSTAND_SLAM_N": "18", "HEADSTAND_PARK_TAX": "-1.5", "HEADSTAND_PROGRESS_W": "1.0"},
           "heavy park tax, half the pay for reaching horizontal"),
-    "D": ({"HEADSTAND_SLAM_N": "12", "HEADSTAND_PARK_TAX": "-1.5", "HEADSTAND_STANDING_P0": "0.4"},
-          "heavy tax and 40% standing spawns from step 0: more entry practice early"),
+    "D": ({"HEADSTAND_SLAM_N": "12", "HEADSTAND_PARK_TAX": "-1.5", "HEADSTAND_STANDING_P0": "0.15"},
+          "heavy tax, 12 N gate, normal spawn mix (40% standing starts fell backward in run 4)"),
 }
 
 JOB_TEMPLATE = """name: microduck-headstand-{name}
