@@ -83,6 +83,7 @@ def force_spawn(env, bucket: str):
     term.params["partway_prob"] = 1.0 if bucket == "partway" else 0.0
     term.params["hold_prob"] = 1.0 if bucket == "hold" else 0.0
     term.params["tripod_prob"] = 1.0 if bucket == "tripod" else 0.0   # the measured RESTING tripod
+    term.params["bank_prob"] = 1.0 if bucket == "bank" else 0.0       # pikes as the fold policy leaves them
     if bucket.startswith("pitch"):   # e.g. "pitch150": dropped head-down at that angle
         deg = float(bucket[5:])
         term.params["partway_prob"] = 1.0
