@@ -47,7 +47,9 @@ with torch.no_grad():
         obs, *_ = w.step(policy(obs))
         inv = m._inverted_cos(asset).numpy()
         first = (t_up < 0) & (inv > math.cos(math.radians(35))); t_up[first] = i * env.step_dt
-        f = m._head_floor_force(env); peak = torch.maximum(peak, f.cpu())
+        f = m._head_floor_force(env)
+        if f is not None:
+            peak = torch.maximum(peak, f.cpu())
         if args.video:
             frames.append(env.render())
 inv = m._inverted_cos(asset).numpy(); nose = m._nose_up(asset).numpy(); touching = floor_bodies(env)
