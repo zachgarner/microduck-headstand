@@ -1,4 +1,4 @@
 [submodule "microduck_rl"]
 	path = microduck_rl
 	url = https://github.com/zachgarner/microduck_rl.git
-	branch = headstand
+	branch = headstand-pr
