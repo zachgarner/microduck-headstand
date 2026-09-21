@@ -61,5 +61,7 @@ print("  end states:", {k: labels.count(k) for k in sorted(set(labels))})
 reached = t_up[t_up >= 0]
 print(f"  reached the headstand angle: {len(reached)}/{N}; time median {np.median(reached) if len(reached) else float('nan'):.2f} s, max {reached.max() if len(reached) else float('nan'):.2f} s")
 print(f"  peak head force: median {float(peak.median()):.1f} N, max {float(peak.max()):.1f} N")
+upright = (inv < -math.cos(math.radians(30))) & np.array([t == {"foot"} for t in touching])
+print(f"  standing upright on the feet at the end: {int(upright.sum())}/{N}   (the back-roll's success)")
 if args.video:
     imageio.mimwrite(args.video, frames, fps=50, quality=8); print("  video:", args.video)

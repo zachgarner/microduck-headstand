@@ -76,6 +76,8 @@ def force_spawn(env, bucket: str):
     "tripod" is the partway bucket pinned to 90-110° with legs near HOME: head
     down, feet down, the state the kick-up policy has to leave.
     """
+    if "set_headstand_spawn" not in env.event_manager.active_terms.get("reset", []):
+        return   # the back-roll task spawns through the roulade's event, already pinned to the hold
     term = env.event_manager.get_term_cfg("set_headstand_spawn")
     term.params["standing_prob"] = 1.0 if bucket == "standing" else 0.0
     term.params["partway_prob"] = 1.0 if bucket == "partway" else 0.0
