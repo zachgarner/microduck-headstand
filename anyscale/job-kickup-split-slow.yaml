@@ -1,0 +1,34 @@
+# Anyscale job for one training run. Submit from the repo root, passing the
+# wandb key on the command line (this CLI, 0.26, does NOT substitute ${VAR}
+# placeholders inside the YAML; a literal placeholder reached the job):
+#   anyscale job submit -f scripts/anyscale/job.yaml --working-dir . --env WANDB_API_KEY=$(python3 -c 'import netrc; print(netrc.netrc().authenticators("api.wandb.ai")[2])')
+# Edit `entrypoint` for the task and iteration count.
+#
+# Single-node, GPU on the HEAD node: the trainer is one process, so the GPU has
+# to be where the entrypoint runs. Zach's cloud is aws-public-us-west-2.
+# g6.2xlarge = one L4 (24 GB), 8 vCPU, 32 GB RAM, on-demand: the same class as
+# Pollen's default HF Jobs flavor (l4x1). No spot: a preempted single node
+# kills the run (checkpoints would survive, the wandb curves would not).
+name: microduck-headstand-kickup-split-slow
+entrypoint: bash scripts/anyscale/train.sh Mjlab-HeadstandKickup-Flat-MicroDuck --env.scene.num-envs 4096 --agent.max_iterations 1500 --agent.resume True --wandb-run-path zachgarner-ai/mjlab_microduck/076n5wpa --wandb-checkpoint-name model_999.pt
+image_uri: anyscale/image/microduck-train:1   # scripts/anyscale/Dockerfile: env pre-synced, no 5-minute uv sync per job
+compute_config:
+  cloud: aws-public-us-west-2
+  head_node:
+    instance_type: g6e.xlarge
+  worker_nodes: []
+excludes:
+  - .git
+  - .venv
+  - logs
+  - wandb
+  - policies
+  - __pycache__
+  - "*.onnx"
+env_vars:
+  MICRODUCK_WARM_START: "1"
+  HEADSTAND_RAMP_S: "2.0"
+  HEADSTAND_POLISH_AT: "0"
+  RUN_NAME: headstand-kickup-split-slow-1
+max_retries: 0
+timeout_s: 43200
