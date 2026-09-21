@@ -1,6 +1,6 @@
-# Physics probes
+# Physics measurements
 
-One-off measurements from before and during training, kept because the task cfg's numbers come from them. Run from inside `microduck_rl/` with `uv run ../probes/<script>`.
+One-off measurements from before and during training, kept because the task cfg's numbers come from them. Run from inside `microduck_rl/` with `uv run ../physics/<script>`.
 
 `settle_sweep.py` dropped the duck into a grid of inverted poses and found the ones that rest on the head. Result: the hold pose (left hip 1.2, right hip 0.8, neck 1.0, head 1.25) balances, and the trunk rests at z = 0.117 m.
 

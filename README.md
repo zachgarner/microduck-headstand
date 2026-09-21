@@ -26,7 +26,7 @@ The simulation uses Pollen's robot model with every part able to collide, and th
 
 ## Layout
 
-`microduck_rl/` is my fork of Pollen's training code, on its `headstand` branch, with the task definitions, rewards and tests, checked out as a submodule. `probes/` has the physics measurements the task numbers came from. `anyscale/` has the training jobs for Anyscale, the hosted Ray service the runs used, one L40S GPU per run. `tools/` has the check scripts and the routine runner. `results/` has the videos and frame strips, the routine by version and each policy on its own.
+`microduck_rl/` is my fork of Pollen's training code, on its `headstand` branch, with the task definitions, rewards and tests, checked out as a submodule. `physics/` has the physics measurements the task numbers came from. `anyscale/` has the training jobs for Anyscale, the hosted Ray service the runs used, one L40S GPU per run. `tools/` has the check scripts and the routine runner. `results/` has the videos and frame strips, the routine by version and each policy on its own.
 
 ## Reward rules that worked
 
