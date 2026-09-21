@@ -75,6 +75,7 @@ def main():
     p.add_argument("--stand", required=True, help="ONNX of Pollen's standing policy")
     p.add_argument("--switch", default=None, help="run:ckpt of the split-switch policy; adds switch there and back after the split hold")
     p.add_argument("--switch-hold-s", type=float, default=1.5, help="hold in each split of the switch")
+    p.add_argument("--orbit-deg-s", type=float, default=0.0, help="camera orbits at this rate while the video's duck is in the switch stages (Zach: \"can the camera rotate for the split switches?\")")
     p.add_argument("--splitroll", default=None, help="run:ckpt of the split back roll; replaces the split exit and the stand-up")
     p.add_argument("--hold-s", type=float, default=2.0); p.add_argument("--episodes", type=int, default=16)
     p.add_argument("--seconds", type=float, default=16.0); p.add_argument("--video", default=None)
@@ -165,6 +166,8 @@ def main():
                 else:
                     held[j] = 0.0
             if args.video:
+                if args.orbit_deg_s and stage[0] < len(stages) and stages[stage[0]][0] in ("switch", "switchback"):
+                    env._offline_renderer._cfg.azimuth += args.orbit_deg_s * env.step_dt   # re-read on every render
                 frames.append(env.render())
     inv = m._inverted_cos(asset).numpy(); nose = m._nose_up(asset).numpy(); touching = floor_bodies(env)
     labels = [classify(float(inv[j]), touching[j], float(nose[j])) for j in range(N)]
