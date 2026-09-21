@@ -24,7 +24,9 @@ def resolve(spec):
         return spec["run"]
     after = datetime.fromisoformat(spec["run"]["after"]).astimezone(timezone.utc)
     for r in api.runs("zachgarner-ai/mjlab_microduck", order="+created_at"):
-        if datetime.fromisoformat(r.created_at.replace("Z", "+00:00")).astimezone(timezone.utc) > after and spec["run"]["name_contains"] in r.name:
+        created = datetime.fromisoformat(r.created_at.replace("Z", "+00:00")).astimezone(timezone.utc)
+        match = r.name.endswith(spec["run"]["name_endswith"]) if "name_endswith" in spec["run"] else spec["run"]["name_contains"] in r.name
+        if created > after and match:
             spec["run"] = r.id; return r.id
     return None
 
