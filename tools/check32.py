@@ -52,6 +52,10 @@ with torch.no_grad():
             frames.append(env.render())
 inv = m._inverted_cos(asset).numpy(); nose = m._nose_up(asset).numpy(); touching = floor_bodies(env)
 labels = [classify(float(inv[i]), touching[i], float(nose[i])) for i in range(N)]
+# The fold's yardstick: resting in the pike = head and both feet down, nose down, trunk 60-95 degrees.
+pitch_deg = np.degrees(m._trunk_pitch(asset).numpy())
+in_pike = [touching[i] == {"head", "foot"} and nose[i] < -0.3 and 60 <= pitch_deg[i] <= 95 for i in range(N)]
+labels = ["pike" if in_pike[i] else labels[i] for i in range(N)]
 print(f"{args.run} {args.checkpoint} from {args.bucket}, {N} episodes, resets inside rollout: {int((env.episode_length_buf < 298).sum())}")
 print("  end states:", {k: labels.count(k) for k in sorted(set(labels))})
 reached = t_up[t_up >= 0]
