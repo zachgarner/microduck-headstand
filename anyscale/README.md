@@ -1,4 +1,8 @@
-# Training runs of record
+# Training on Anyscale
+
+Each run is one L40S GPU node on Anyscale, submitted with `submit.py` from this repo's root. `train.sh` runs on the node: it restores the compiled MuJoCo Warp kernels from the artifact bucket, trains, and syncs the checkpoints back every five minutes. The Dockerfile builds the image with the fork's environment already installed, so a job starts training within a minute.
+
+## Runs of record
 
 Every policy in the routine, the run that produced it, and what it started from. Knobs are environment variables the task cfg reads (`microduck_rl/src/mjlab_microduck/tasks/microduck_headstand_env_cfg.py` and `microduck_backroll_env_cfg.py`). All runs: 4,096 envs, one L40S, checkpoints every 250 iterations in the wandb project `zachgarner-ai/mjlab_microduck`.
 

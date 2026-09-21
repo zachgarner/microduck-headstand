@@ -22,7 +22,7 @@ Each row below is one policy: its training run on wandb (the training log servic
 | Split over into a back roll, from either split | `2v46kg6g` 1499 | 32/32 standing, knees straight (0.26 rad) and hips split (0.9 rad) until the lead foot lands |
 | Stand up from the pike (Pollen's `alpha_stand.onnx`) | not trained here | 31/32 |
 
-The simulation uses Pollen's robot model with every part able to collide, and their BAM actuator model, a fitted model of the XL330 servo that caps each motor at the voltage the real one gets. Before counting a success I read the simulation frames around every state change. Three early passes were a reset, a mislabelled fall and a respawn, not headstands. The check scripts and the routine runner are in [`tools/`](tools/), and [`anyscale/runs.md`](anyscale/runs.md) lists every training run with what it started from.
+The simulation uses Pollen's robot model with every part able to collide, and their BAM actuator model, a fitted model of the XL330 servo that caps each motor at the voltage the real one gets. Before counting a success I read the simulation frames around every state change. Three early passes were a reset, a mislabelled fall and a respawn, not headstands. The check scripts and the routine runner are in [`tools/`](tools/), and [`anyscale/README.md`](anyscale/README.md) lists every training run with what it started from.
 
 ## Layout
 

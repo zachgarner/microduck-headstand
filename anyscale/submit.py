@@ -7,7 +7,7 @@ One L40S node (g6e.xlarge) per run, about 2.1 s per iteration at 4,096 envs.
 The wandb key comes from ~/.netrc (wandb login) and is passed with --env on
 the command line, because this anyscale CLI (0.26) does not substitute
 ${VAR} placeholders inside the YAML. Checkpoints land in the wandb run and in
-the artifact bucket under microduck/<name>/logs/. runs.md lists the runs of record.
+the artifact bucket under microduck/<name>/logs/. README.md here lists the runs of record.
 """
 import argparse, netrc, subprocess, tempfile
 from pathlib import Path
