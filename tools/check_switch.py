@@ -68,8 +68,8 @@ with torch.no_grad():
         resets += int((env.episode_length_buf == 0).sum())
         if i > flip:
             inv = m._inverted_cos(asset) > math.cos(math.radians(35))
-            arrived = inv & (dist(mirrored) < dist(target)) & (t_mirror < 0)
-            t_mirror[arrived.numpy()] = (i - flip) * env.step_dt
+            arrived = (inv & (dist(mirrored) < dist(target))).numpy() & (t_mirror < 0)
+            t_mirror[arrived] = (i - flip) * env.step_dt
         if args.video:
             frames.append(env.render())
 inv = (m._inverted_cos(asset) > math.cos(math.radians(35))).numpy()

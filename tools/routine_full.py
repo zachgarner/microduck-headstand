@@ -33,7 +33,18 @@ TASK = {
     "roll": "Mjlab-HeadstandBackrollStraight-Flat-MicroDuck",
     "split": "Mjlab-HeadstandKickup-Flat-MicroDuck",
     "splitexit": "Mjlab-HeadstandSplitExit-Flat-MicroDuck",
+    "switch": "Mjlab-HeadstandSplitSwitch-Flat-MicroDuck",
 }
+TWIST_VX = 48   # obs layout: 48 proprio, then [twist(3), head_pose(4), body_pose(6)]
+
+
+def flagged(pol, flag: float):
+    """The split-switch policy reads its flag from the twist vx slot (AGENTS.md
+    obs contract). The routine env's twist command is ~0, so set the slot."""
+    def run(obs):
+        o = dict(obs); o["actor"] = obs["actor"].clone(); o["actor"][:, TWIST_VX] = flag
+        return pol(o)
+    return run
 
 
 def torch_policy(task, spec, wrapped):
@@ -61,6 +72,8 @@ def main():
     for k in ("fold", "straight", "roll", "split", "splitexit"):
         p.add_argument(f"--{k}", required=True)
     p.add_argument("--stand", required=True, help="ONNX of Pollen's standing policy")
+    p.add_argument("--switch", default=None, help="run:ckpt of the split-switch policy; adds switch there and back after the split hold")
+    p.add_argument("--switch-hold-s", type=float, default=1.5, help="hold in each split of the switch")
     p.add_argument("--hold-s", type=float, default=2.0); p.add_argument("--episodes", type=int, default=16)
     p.add_argument("--seconds", type=float, default=16.0); p.add_argument("--video", default=None)
     p.add_argument("--settle-s", type=float, default=1.0, help="standing policy holds this long after the roll")
@@ -91,10 +104,26 @@ def main():
         ("splitexit", torch_policy(TASK["splitexit"], args.splitexit, w), "pike",      0.3),
         ("stand",     stand_pol,                                          "standing",  1.0),
     ]
+    if args.switch:
+        # Zach's flair (Sep 21): "switch its split while in the air". Flag 1
+        # mirrors the split, flag 0 brings it back so the split exit sees the
+        # split it was trained on. Both count as "in the headstand" held.
+        sw = torch_policy(TASK["switch"], args.switch, w)
+        k = [n for n, *_ in stages].index("splitexit")
+        stages[k:k] = [("switch",     flagged(sw, 1.0), "mirrored", args.switch_hold_s),
+                       ("switchback", flagged(sw, 0.0), "original", args.switch_hold_s)]
     term = env.event_manager.get_term_cfg("set_headstand_spawn")
     term.params.update(standing_prob=1.0, partway_prob=0.0, hold_prob=0.0, tripod_prob=0.0)
     obs, _ = w.reset()
     asset = env.scene["robot"]
+    # The switch stages count only when the joints are nearer the mirrored
+    # (or the original) split target than the other, not merely inverted.
+    from mjlab_microduck.tasks.microduck_headstand_env_cfg import HEADSTAND_OVERRIDES
+    split_t = m._servo_default_joint_pos(env, asset).clone(); mirror_t = split_t.clone()
+    for i_, v_ in HEADSTAND_OVERRIDES.items():
+        split_t[:, i_] = v_
+    for i_, v_ in m._mirror_overrides(HEADSTAND_OVERRIDES).items():
+        mirror_t[:, i_] = v_
     stage = np.zeros(N, dtype=int); held = np.zeros(N); t_stage = np.full((N, len(stages) + 1), -1.0); t_stage[:, 0] = 0.0
     steps = int(args.seconds / env.step_dt); frames = []
     with torch.no_grad():
@@ -112,6 +141,8 @@ def main():
             cond = {
                 "pike": np.array([touching[j] == {"head", "foot"} and nose[j] < -0.3 and 60 <= pitch[j] <= 95 for j in range(N)]),
                 "headstand": inv > math.cos(math.radians(35)),
+                "mirrored": (inv > math.cos(math.radians(35))) & (((m._servo_joint_pos(env, asset) - mirror_t) ** 2).sum(-1) < ((m._servo_joint_pos(env, asset) - split_t) ** 2).sum(-1)).numpy(),
+                "original": (inv > math.cos(math.radians(35))) & (((m._servo_joint_pos(env, asset) - split_t) ** 2).sum(-1) < ((m._servo_joint_pos(env, asset) - mirror_t) ** 2).sum(-1)).numpy(),
                 "standing": np.array([touching[j] == {"foot"} and inv[j] < -math.cos(math.radians(30)) for j in range(N)]),
             }
             for j in range(N):
