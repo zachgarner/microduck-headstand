@@ -8,7 +8,7 @@ terminations, no policy). For every timing/strength combination we record the
 trunk's furthest angle toward 180° and what the body rests on at the end.
 This is a lower bound on each mode: a script has no balance in it.
 
-    HEADSTAND_TASK=Mjlab-HeadstandKickup-Flat-MicroDuck uv run scripts/headstand/entry_modes.py
+    HEADSTAND_TASK=Mjlab-HeadstandKickup-Flat-MicroDuck uv run ../physics/entry_modes.py
 """
 import itertools, json, os, sys
 from pathlib import Path

@@ -7,7 +7,7 @@ at the end. Sweeps the three things a person would coordinate: how hard the
 neck pushes, how fast the free leg lifts into the split, and how hard the
 standing foot pushes off. AGENTS.md: verify physics before training.
 
-    uv run scripts/headstand/scripted_kickup.py --video ~/Desktop/microduck/scripted_kickup_best.mp4
+    uv run ../physics/scripted_kickup.py --video ~/Desktop/microduck/scripted_kickup_best.mp4
 """
 import argparse, itertools, json, sys
 from pathlib import Path

@@ -2,7 +2,7 @@
 
     fold -> straight kick-up -> hold -> back roll -> stand -> fold -> split kick-up -> hold -> split exit -> stand
 
-    HEADSTAND_TASK=Mjlab-HeadstandKickupStraight-Flat-MicroDuck uv run scripts/headstand/routine_full.py \\
+    HEADSTAND_TASK=Mjlab-HeadstandKickupStraight-Flat-MicroDuck uv run ../tools/routine_full.py \\
         --fold vorty4kb:model_1000.pt --straight geexqesa:model_1000.pt --roll 44wneb8l:model_1000.pt \\
         --split 076n5wpa:model_999.pt --splitexit fxhauoka:model_750.pt --stand policies/pollen/alpha_stand.onnx \\
         --hold-s 2 --episodes 16 --video ~/Desktop/microduck/routine_full.mp4
@@ -13,7 +13,7 @@ which is how the runtime would switch policies. Reports how many episodes
 reach each stage and the end state.
 """
 import argparse, math, os, sys
-sys.path.insert(0, str(__import__("pathlib").Path(__file__).parent)); sys.path.insert(0, str(__import__("pathlib").Path(__file__).parent.parent / "tools"))
+sys.path.insert(0, str(__import__("pathlib").Path(__file__).parent))
 from dataclasses import asdict
 from pathlib import Path
 import imageio.v2 as imageio
@@ -35,6 +35,7 @@ TASK = {
     "splitexit": "Mjlab-HeadstandSplitExit-Flat-MicroDuck",
     "switch": "Mjlab-HeadstandSplitSwitch-Flat-MicroDuck",
     "splitroll": "Mjlab-HeadstandBackrollSplit-Flat-MicroDuck",
+    "splitover": "Mjlab-HeadstandSplitOver-Flat-MicroDuck",
 }
 TWIST_VX = 48   # obs layout: 48 proprio, then [twist(3), head_pose(4), body_pose(6)]
 
@@ -78,6 +79,7 @@ def main():
     p.add_argument("--switch-hold-s", type=float, default=1.5, help="hold in each split of the switch")
     p.add_argument("--orbit-deg-s", type=float, default=0.0, help="camera orbits at this rate while the video's duck is in the switch stages (Zach: \"can the camera rotate for the split switches?\")")
     p.add_argument("--single-switch", action="store_true", help="one switch only, exit from the mirrored split (Zach: switch-switch-switch looks like flailing)")
+    p.add_argument("--splitover", default=None, help="run:ckpt of the split-over exit (legs kept split going over); replaces the split exit and the stand-up")
     p.add_argument("--splitroll", default=None, help="run:ckpt of the split back roll; replaces the split exit and the stand-up")
     p.add_argument("--hold-s", type=float, default=2.0); p.add_argument("--episodes", type=int, default=16)
     p.add_argument("--seconds", type=float, default=16.0); p.add_argument("--video", default=None)
@@ -117,7 +119,11 @@ def main():
         k = [n for n, *_ in stages].index("splitexit")
         stages[k:k] = [("switch",     flagged(sw, 1.0), "mirrored", args.switch_hold_s)] + (
                       [] if args.single_switch else [("switchback", flagged(sw, 0.0), "original", args.switch_hold_s)])
-    if args.splitroll:
+    if args.splitover:
+        k = [n for n, *_ in stages].index("splitexit")
+        stages[k:k + 2] = [("splitover", torch_policy(TASK["splitover"], args.splitover, w), "standing", 0.3),
+                           ("settle2",   stand_pol,                                         "standing", 1.0)]
+    elif args.splitroll:
         # Zach, Sep 21: the split exit should "continue the split" over into a
         # back roll, not come back down the way it went up. The split back
         # roll ends standing on its own, so Pollen's stand-up goes too.
@@ -125,7 +131,7 @@ def main():
         stages[k:k + 2] = [("splitroll", torch_policy(TASK["splitroll"], args.splitroll, w), "standing", 0.3),
                            ("settle2",   stand_pol,                                         "standing", 1.0)]
     term = env.event_manager.get_term_cfg("set_headstand_spawn")
-    term.params.update(standing_prob=1.0, partway_prob=0.0, hold_prob=0.0, tripod_prob=0.0)
+    term.params.update(standing_prob=1.0, partway_prob=0.0, hold_prob=0.0, pike_prob=0.0)
     obs, _ = w.reset()
     asset = env.scene["robot"]
     # The switch stages count only when the joints are nearer the mirrored

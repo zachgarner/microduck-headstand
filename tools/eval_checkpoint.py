@@ -6,8 +6,8 @@ geom/axis touches". This runs full episodes on CPU from each spawn bucket
 trunk orientation and the bodies on the floor, and writes an mp4 of the
 standing-spawn rollouts (the entry is what we want to see).
 
-    uv run scripts/headstand/eval_checkpoint.py --wandb-run-path zachgarner-ai/mjlab_microduck/rfcisbwg --checkpoint model_250.pt
-    uv run scripts/headstand/eval_checkpoint.py --checkpoint-file logs/.../model_250.pt --episodes 32
+    uv run ../tools/eval_checkpoint.py --wandb-run-path zachgarner-ai/mjlab_microduck/rfcisbwg --checkpoint model_250.pt
+    uv run ../tools/eval_checkpoint.py --checkpoint-file logs/.../model_250.pt --episodes 32
 
 Success = trunk within 35° of inverted AND the head is the only body on the
 floor, at the last step. "Tripod" = head plus a foot. "Flop" = anything else
@@ -30,7 +30,7 @@ from mjlab.tasks.registry import load_env_cfg, load_rl_cfg, load_runner_cls
 
 from mjlab_microduck.tasks import mdp as microduck_mdp
 
-TASK = os.environ.get("HEADSTAND_TASK", "Mjlab-Headstand-Flat-MicroDuck")  # or Mjlab-HeadstandKickup-Flat-MicroDuck
+TASK = os.environ.get("HEADSTAND_TASK", "Mjlab-HeadstandKickup-Flat-MicroDuck")
 HEAD = {"jaw_soft", "yaw_roll_motion", "neck_pitch"}
 FEET = {"ankle_left", "ankle_right"}
 
@@ -82,7 +82,7 @@ def force_spawn(env, bucket: str):
     term.params["standing_prob"] = 1.0 if bucket == "standing" else 0.0
     term.params["partway_prob"] = 1.0 if bucket == "partway" else 0.0
     term.params["hold_prob"] = 1.0 if bucket == "hold" else 0.0
-    term.params["tripod_prob"] = 1.0 if bucket == "tripod" else 0.0   # the measured RESTING tripod
+    term.params["pike_prob"] = 1.0 if bucket in ("tripod", "pike") else 0.0   # the measured RESTING pike
     term.params["bank_prob"] = 1.0 if bucket == "bank" else 0.0       # pikes as the fold policy leaves them
     if bucket.startswith("pitch"):   # e.g. "pitch150": dropped head-down at that angle
         deg = float(bucket[5:])

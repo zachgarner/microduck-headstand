@@ -1,6 +1,6 @@
 """Does the exit keep the split while going over? 32 episodes from the split hold.
 
-    uv run scripts/headstand/check_splitover.py --task Mjlab-HeadstandBackrollSplit-Flat-MicroDuck --run bhcxmnvs --checkpoint model_1499.pt
+    uv run ../tools/check_splitover.py --task Mjlab-HeadstandBackrollSplit-Flat-MicroDuck --run bhcxmnvs --checkpoint model_1499.pt
 
 While the trunk goes over (roll accumulator 170-330 deg) records the hip
 split |left + right hip pitch| (2.0 rad in the hold, 0 legs together) and

@@ -7,7 +7,7 @@ carrying in the tripod pose (head plus one foot). Zero means the foot just
 lifts. This sweeps tripod poses, keeps the ones that settle on the head plus
 one foot, and reports the foot's share of the weight, smallest first.
 
-    uv run scripts/headstand/tripod_check.py --workers 8 --top 20
+    uv run ../physics/tripod_check.py --workers 8 --top 20
 """
 
 import argparse

@@ -1,6 +1,6 @@
 """The 32-episode flag-flip check of a split-switch checkpoint.
 
-    uv run scripts/headstand/check_switch.py --run xikztubv --checkpoint model_250.pt --video out.mp4
+    uv run ../tools/check_switch.py --run xikztubv --checkpoint model_250.pt --video out.mp4
 
 Spawns in the split hold (flag 0, left leg forward), holds 1.5 s, flips the
 flag to 1 for every env and freezes resampling, then watches 3.5 s. Reports

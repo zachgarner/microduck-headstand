@@ -1,7 +1,7 @@
 """Show a headstand pose in the MuJoCo viewer: drop the duck into it, hold, repeat.
 
-    .venv/bin/mjpython scripts/headstand/show_pose.py            # the split pose
-    .venv/bin/mjpython scripts/headstand/show_pose.py --tucked   # the tucked pose
+    .venv/bin/mjpython ../physics/show_pose.py            # the split pose
+    .venv/bin/mjpython ../physics/show_pose.py --tucked   # the tucked pose
 
 Every 6 seconds the duck is dropped again from a noisy start, so you see both
 the landings and the misses. Close the window to stop.

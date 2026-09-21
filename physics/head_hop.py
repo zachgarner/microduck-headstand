@@ -6,7 +6,7 @@ floor), pump the legs (hips flex then extend, the arm push a gymnast would
 use), or both, and measure whether the head ever leaves the floor (head
 contact force 0 for 2+ control steps) and how far the trunk rises.
 
-    uv run scripts/headstand/head_hop.py
+    uv run ../physics/head_hop.py
 """
 import itertools, math, sys
 sys.path.insert(0, str(__import__("pathlib").Path(__file__).parent)); sys.path.insert(0, str(__import__("pathlib").Path(__file__).parent.parent / "tools"))

@@ -1,6 +1,6 @@
 """The 32-episode, no-resets check of a headstand checkpoint from one start.
 
-    HEADSTAND_TASK=Mjlab-HeadstandKickup-Flat-MicroDuck uv run scripts/headstand/check32.py --run 076n5wpa --checkpoint model_999.pt --bucket tripod --video out.mp4
+    HEADSTAND_TASK=Mjlab-HeadstandKickup-Flat-MicroDuck uv run ../tools/check32.py --run 076n5wpa --checkpoint model_999.pt --bucket tripod --video out.mp4
 
 Terminations are disabled so nothing can reset inside the rollout (the
 mechanism that faked three "successes" on Sep 20 2026). Reports end states,

@@ -7,9 +7,9 @@ seconds, and reports the poses that end up still inverted and resting on the
 head only. Survivors are sorted with the feet highest first, since a
 headstand wants the legs up.
 
-    uv run scripts/headstand/settle_sweep.py --grid tucked   # the first sweep (Sep 18 2026)
-    uv run scripts/headstand/settle_sweep.py --grid split    # split-leg poses, Zach's ask
-    uv run scripts/headstand/settle_sweep.py --grid split --workers 8 --top 30
+    uv run ../physics/settle_sweep.py --grid tucked   # the first sweep (Sep 18 2026)
+    uv run ../physics/settle_sweep.py --grid split    # split-leg poses, Zach's ask
+    uv run ../physics/settle_sweep.py --grid split --workers 8 --top 30
 """
 
 import argparse

@@ -1,6 +1,6 @@
 """Record the states a policy hands over, to train the next policy from them.
 
-    HEADSTAND_TASK=Mjlab-HeadstandFold-Flat-MicroDuck uv run scripts/headstand/collect_handover.py \\
+    HEADSTAND_TASK=Mjlab-HeadstandFold-Flat-MicroDuck uv run ../tools/collect_handover.py \\
         --run vorty4kb --checkpoint model_1000.pt --bucket standing --condition pike --n 512 \\
         --out src/mjlab_microduck/tasks/handover_pike_from_fold.npz
 
