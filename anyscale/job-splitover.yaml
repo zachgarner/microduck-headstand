@@ -27,6 +27,6 @@ excludes:
   - "*.onnx"
 env_vars:
   MICRODUCK_WARM_START: "1"
-  RUN_NAME: headstand-splitover-1
+  RUN_NAME: headstand-splitover-2
 max_retries: 0
 timeout_s: 43200
