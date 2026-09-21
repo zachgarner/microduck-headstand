@@ -26,6 +26,6 @@ excludes:
   - __pycache__
   - "*.onnx"
 env_vars:
-  RUN_NAME: headstand-kickup-2
+  RUN_NAME: headstand-kickup-3-pike
 max_retries: 0
 timeout_s: 43200
