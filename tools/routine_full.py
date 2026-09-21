@@ -34,6 +34,7 @@ TASK = {
     "split": "Mjlab-HeadstandKickup-Flat-MicroDuck",
     "splitexit": "Mjlab-HeadstandSplitExit-Flat-MicroDuck",
     "switch": "Mjlab-HeadstandSplitSwitch-Flat-MicroDuck",
+    "splitroll": "Mjlab-HeadstandBackrollSplit-Flat-MicroDuck",
 }
 TWIST_VX = 48   # obs layout: 48 proprio, then [twist(3), head_pose(4), body_pose(6)]
 
@@ -74,6 +75,7 @@ def main():
     p.add_argument("--stand", required=True, help="ONNX of Pollen's standing policy")
     p.add_argument("--switch", default=None, help="run:ckpt of the split-switch policy; adds switch there and back after the split hold")
     p.add_argument("--switch-hold-s", type=float, default=1.5, help="hold in each split of the switch")
+    p.add_argument("--splitroll", default=None, help="run:ckpt of the split back roll; replaces the split exit and the stand-up")
     p.add_argument("--hold-s", type=float, default=2.0); p.add_argument("--episodes", type=int, default=16)
     p.add_argument("--seconds", type=float, default=16.0); p.add_argument("--video", default=None)
     p.add_argument("--settle-s", type=float, default=1.0, help="standing policy holds this long after the roll")
@@ -112,6 +114,13 @@ def main():
         k = [n for n, *_ in stages].index("splitexit")
         stages[k:k] = [("switch",     flagged(sw, 1.0), "mirrored", args.switch_hold_s),
                        ("switchback", flagged(sw, 0.0), "original", args.switch_hold_s)]
+    if args.splitroll:
+        # Zach, Sep 21: the split exit should "continue the split" over into a
+        # back roll, not come back down the way it went up. The split back
+        # roll ends standing on its own, so Pollen's stand-up goes too.
+        k = [n for n, *_ in stages].index("splitexit")
+        stages[k:k + 2] = [("splitroll", torch_policy(TASK["splitroll"], args.splitroll, w), "standing", 0.3),
+                           ("settle2",   stand_pol,                                         "standing", 1.0)]
     term = env.event_manager.get_term_cfg("set_headstand_spawn")
     term.params.update(standing_prob=1.0, partway_prob=0.0, hold_prob=0.0, tripod_prob=0.0)
     obs, _ = w.reset()
