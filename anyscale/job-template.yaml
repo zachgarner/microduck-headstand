@@ -1,0 +1,23 @@
+# Filled in by submit.py. One GPU node; the trainer is a single process, so the
+# GPU is the head node. g6e.xlarge = one L40S. No spot: a preempted node kills
+# the run (the checkpoints survive in the bucket, the wandb curves do not).
+name: __NAME__
+entrypoint: __ENTRYPOINT__
+image_uri: anyscale/image/microduck-train:1   # Dockerfile here: the uv env pre-synced
+compute_config:
+  cloud: aws-public-us-west-2
+  head_node:
+    instance_type: __INSTANCE__
+  worker_nodes: []
+excludes:
+  - .git
+  - .venv
+  - logs
+  - wandb
+  - policies
+  - __pycache__
+  - "*.onnx"
+env_vars:
+__ENV_VARS__
+max_retries: 0
+timeout_s: 43200

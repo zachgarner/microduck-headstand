@@ -9,7 +9,7 @@ mirrored target than to the original), and how many are still inverted at
 all. Terminations are disabled; resets inside the rollout are counted.
 """
 import argparse, math, sys
-sys.path.insert(0, "scripts/headstand")
+sys.path.insert(0, str(__import__("pathlib").Path(__file__).parent)); sys.path.insert(0, str(__import__("pathlib").Path(__file__).parent.parent / "tools"))
 from dataclasses import asdict
 from pathlib import Path
 import imageio.v2 as imageio

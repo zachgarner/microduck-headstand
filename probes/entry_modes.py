@@ -12,7 +12,7 @@ This is a lower bound on each mode: a script has no balance in it.
 """
 import itertools, json, os, sys
 from pathlib import Path
-sys.path.insert(0, "scripts/headstand")
+sys.path.insert(0, str(__import__("pathlib").Path(__file__).parent)); sys.path.insert(0, str(__import__("pathlib").Path(__file__).parent.parent / "tools"))
 import numpy as np
 import torch
 import imageio.v2 as imageio

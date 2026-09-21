@@ -8,7 +8,7 @@ the worst knee bend, per episode: the minimum split and the maximum knee
 bend seen in the window, and which foot touches the floor first.
 """
 import argparse, math, sys
-sys.path.insert(0, "scripts/headstand")
+sys.path.insert(0, str(__import__("pathlib").Path(__file__).parent)); sys.path.insert(0, str(__import__("pathlib").Path(__file__).parent.parent / "tools"))
 from dataclasses import asdict
 from pathlib import Path
 import numpy as np, torch

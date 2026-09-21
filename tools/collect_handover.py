@@ -11,7 +11,7 @@ bank (`pike_bank`), so it trains from the pikes the fold actually produces
 instead of the one measured resting pike.
 """
 import argparse, math, os, sys
-sys.path.insert(0, "scripts/headstand")
+sys.path.insert(0, str(__import__("pathlib").Path(__file__).parent)); sys.path.insert(0, str(__import__("pathlib").Path(__file__).parent.parent / "tools"))
 from dataclasses import asdict
 from pathlib import Path
 import numpy as np

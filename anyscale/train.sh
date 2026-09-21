@@ -2,7 +2,7 @@
 # Train one task on an Anyscale job and keep the checkpoints in the cloud's
 # artifact bucket. Mirrors what scripts/hf/ does for Hugging Face Jobs.
 #
-#   bash scripts/anyscale/train.sh Mjlab-Headstand-Flat-MicroDuck --env.scene.num-envs 4096 --agent.max_iterations 3000
+#   bash ../anyscale/train.sh Mjlab-Headstand-Flat-MicroDuck --env.scene.num-envs 4096 --agent.max_iterations 3000
 #
 # Runs on the job's head node, which the job config makes a GPU instance (a
 # single-process trainer, so the GPU has to be where the entrypoint runs).

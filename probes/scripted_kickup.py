@@ -11,7 +11,7 @@ standing foot pushes off. AGENTS.md: verify physics before training.
 """
 import argparse, itertools, json, sys
 from pathlib import Path
-sys.path.insert(0, "scripts/headstand")
+sys.path.insert(0, str(__import__("pathlib").Path(__file__).parent)); sys.path.insert(0, str(__import__("pathlib").Path(__file__).parent.parent / "tools"))
 import imageio.v2 as imageio
 import numpy as np
 import mujoco

@@ -7,7 +7,7 @@ mechanism that faked three "successes" on Sep 20 2026). Reports end states,
 time to reach the headstand angle, and peak head force. Records env 0.
 """
 import argparse, math, os, sys
-sys.path.insert(0, "scripts/headstand")
+sys.path.insert(0, str(__import__("pathlib").Path(__file__).parent)); sys.path.insert(0, str(__import__("pathlib").Path(__file__).parent.parent / "tools"))
 from dataclasses import asdict
 from pathlib import Path
 import imageio.v2 as imageio

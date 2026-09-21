@@ -13,7 +13,7 @@ which is how the runtime would switch policies. Reports how many episodes
 reach each stage and the end state.
 """
 import argparse, math, os, sys
-sys.path.insert(0, "scripts/headstand")
+sys.path.insert(0, str(__import__("pathlib").Path(__file__).parent)); sys.path.insert(0, str(__import__("pathlib").Path(__file__).parent.parent / "tools"))
 from dataclasses import asdict
 from pathlib import Path
 import imageio.v2 as imageio
@@ -70,8 +70,9 @@ def onnx_policy(path):
 
 def main():
     p = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
-    for k in ("fold", "straight", "roll", "split", "splitexit"):
+    for k in ("fold", "straight", "roll", "split"):
         p.add_argument(f"--{k}", required=True)
+    p.add_argument("--splitexit", default=None, help="run:ckpt of the split exit to the pike (the v1-v10 exit); not needed with --splitover or --splitroll")
     p.add_argument("--stand", required=True, help="ONNX of Pollen's standing policy")
     p.add_argument("--switch", default=None, help="run:ckpt of the split-switch policy; adds switch there and back after the split hold")
     p.add_argument("--switch-hold-s", type=float, default=1.5, help="hold in each split of the switch")
@@ -105,7 +106,7 @@ def main():
         ("settle",    stand_pol,                                          "standing",  args.settle_s),
         ("fold2",     fold_pol,                                           "pike",      0.3 + args.pike_settle_s),
         ("split",     torch_policy(TASK["split"], args.split, w),         "headstand", args.hold_s),
-        ("splitexit", torch_policy(TASK["splitexit"], args.splitexit, w), "pike",      0.3),
+        ("splitexit", torch_policy(TASK["splitexit"], args.splitexit, w) if args.splitexit else None, "pike", 0.3),
         ("stand",     stand_pol,                                          "standing",  1.0),
     ]
     if args.switch:

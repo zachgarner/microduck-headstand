@@ -15,7 +15,7 @@ import mujoco
 import mujoco.viewer
 import numpy as np
 
-sys.path.insert(0, "scripts/headstand")
+sys.path.insert(0, str(__import__("pathlib").Path(__file__).parent)); sys.path.insert(0, str(__import__("pathlib").Path(__file__).parent.parent / "tools"))
 from settle_sweep import SCENE, pose_from, quat_from_pitch, lowest_point_z  # noqa: E402
 
 SPLIT = pose_from(0.75, 1.0, 0.4, 1.2, 0.0, 0.0)

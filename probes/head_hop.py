@@ -9,7 +9,7 @@ contact force 0 for 2+ control steps) and how far the trunk rises.
     uv run scripts/headstand/head_hop.py
 """
 import itertools, math, sys
-sys.path.insert(0, "scripts/headstand")
+sys.path.insert(0, str(__import__("pathlib").Path(__file__).parent)); sys.path.insert(0, str(__import__("pathlib").Path(__file__).parent.parent / "tools"))
 import numpy as np, torch
 from mjlab.envs import ManagerBasedRlEnv
 from mjlab.tasks.registry import load_env_cfg
