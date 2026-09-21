@@ -29,6 +29,6 @@ env_vars:
   MICRODUCK_WARM_START: "1"
   HEADSTAND_RAMP_S: "2.0"
   HEADSTAND_POLISH_AT: "0"
-  RUN_NAME: headstand-kickup-straight-slow-1
+  RUN_NAME: headstand-kickup-straight-slow-2
 max_retries: 0
 timeout_s: 43200
