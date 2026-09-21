@@ -63,6 +63,8 @@ def main():
     p.add_argument("--stand", required=True, help="ONNX of Pollen's standing policy")
     p.add_argument("--hold-s", type=float, default=2.0); p.add_argument("--episodes", type=int, default=16)
     p.add_argument("--seconds", type=float, default=16.0); p.add_argument("--video", default=None)
+    p.add_argument("--settle-s", type=float, default=1.0, help="standing policy holds this long after the roll")
+    p.add_argument("--pike-settle-s", type=float, default=0.5, help="extra time resting in the pike before the kick-up")
     args = p.parse_args()
     N = args.episodes
     cfg = load_env_cfg(TASK["straight"], play=True); cfg.scene.num_envs = N; cfg.curriculum.clear()
@@ -73,14 +75,21 @@ def main():
     cfg.viewer.distance = 0.7; cfg.viewer.elevation = -8; cfg.viewer.azimuth = 135; cfg.viewer.height = 480; cfg.viewer.width = 640
     env = ManagerBasedRlEnv(cfg=cfg, device="cpu", render_mode="rgb_array" if args.video else None)
     w = RslRlVecEnvWrapper(env, clip_actions=load_rl_cfg(TASK["straight"]).clip_actions)
+    fold_pol = torch_policy(TASK["fold"], args.fold, w)
+    stand_pol = onnx_policy(args.stand)
+    # Settle stages (Sep 21): after the roll the duck is standing with momentum
+    # and the fold policy has only seen a still stand; Pollen's standing policy
+    # holds it for `--settle-s` first. The pike gets `--pike-settle-s` of the
+    # fold policy holding before the kick-up takes over.
     stages = [
-        ("fold",      torch_policy(TASK["fold"], args.fold, w),           "pike",      0.3),
+        ("fold",      fold_pol,                                           "pike",      0.3 + args.pike_settle_s),
         ("straight",  torch_policy(TASK["straight"], args.straight, w),   "headstand", args.hold_s),
-        ("roll",      torch_policy(TASK["roll"], args.roll, w),           "standing",  0.5),
-        ("fold2",     torch_policy(TASK["fold"], args.fold, w),           "pike",      0.3),
+        ("roll",      torch_policy(TASK["roll"], args.roll, w),           "standing",  0.3),
+        ("settle",    stand_pol,                                          "standing",  args.settle_s),
+        ("fold2",     fold_pol,                                           "pike",      0.3 + args.pike_settle_s),
         ("split",     torch_policy(TASK["split"], args.split, w),         "headstand", args.hold_s),
         ("splitexit", torch_policy(TASK["splitexit"], args.splitexit, w), "pike",      0.3),
-        ("stand",     onnx_policy(args.stand),                            "standing",  1.0),
+        ("stand",     stand_pol,                                          "standing",  1.0),
     ]
     term = env.event_manager.get_term_cfg("set_headstand_spawn")
     term.params.update(standing_prob=1.0, partway_prob=0.0, hold_prob=0.0, tripod_prob=0.0)
