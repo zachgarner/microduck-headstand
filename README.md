@@ -28,7 +28,22 @@ cd microduck-headstand/microduck_rl
 uv sync
 ```
 
-Download `alpha_stand.onnx` from the Hugging Face repository `pollen-robotics/microduck-policies` into `policies/pollen/`. The trained checkpoints download on first use from the W&B project `zachgarner-ai/mjlab_microduck`; access to that project is required.
+Download the six evaluated checkpoints and Pollen's standing policy without logging in:
+
+```bash
+uv run ../tools/download_policies.py
+```
+
+The downloader uses pinned Hugging Face revisions, verifies SHA-256 hashes against the evaluation evidence, and places each file in the evaluator's cache. W&B access is not required. Each published headstand package also contains a normalized ONNX export, provenance, and an individual evaluation report. The success counts were measured with the original checkpoints; the ONNX exports passed shape and output checks, but were not separately evaluated in full rollouts. These are simulation artifacts, not robot-daemon installation packages.
+
+| Policy | Public package |
+| --- | --- |
+| fold | [Hugging Face](https://huggingface.co/ZachGarner/microduck-headstand-fold/tree/a889f49599a658c1c6ca780e446ed98c381b4093) |
+| legs-together | [Hugging Face](https://huggingface.co/ZachGarner/microduck-headstand-legs-together/tree/910d72cb6ccb2bf3db523b5e2d3916b6afb563dd) |
+| split | [Hugging Face](https://huggingface.co/ZachGarner/microduck-headstand-split/tree/ba7289f31f2f23d02f67f39b26bd512653fdee04) |
+| switch | [Hugging Face](https://huggingface.co/ZachGarner/microduck-headstand-switch/tree/1cbf2592b61cb58ac3bb6ec4d5d6318e3b34f209) |
+| backroll | [Hugging Face](https://huggingface.co/ZachGarner/microduck-headstand-backroll/tree/aef59e138f3dc6cebc67d809e293e6908146d783) |
+| splitover | [Hugging Face](https://huggingface.co/ZachGarner/microduck-headstand-splitover/tree/a988bb01dcaea5487ab9f63228f4bea232993b36) |
 
 Run three seeds with 32 attempts each, plus the individual policy checks:
 

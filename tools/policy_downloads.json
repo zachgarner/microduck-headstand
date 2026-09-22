@@ -1,0 +1,51 @@
+[
+  {
+    "repository": "ZachGarner/microduck-headstand-fold",
+    "revision": "a889f49599a658c1c6ca780e446ed98c381b4093",
+    "filename": "model_1000.pt",
+    "destination": "logs/rsl_rl/microduck_headstand_fold/wandb_checkpoints/vorty4kb/model_1000.pt",
+    "sha256": "82a97cbc871c718f82a467682c014555f64c78e9e9ce33438a2bc3a75636eec5"
+  },
+  {
+    "repository": "ZachGarner/microduck-headstand-legs-together",
+    "revision": "910d72cb6ccb2bf3db523b5e2d3916b6afb563dd",
+    "filename": "model_1499.pt",
+    "destination": "logs/rsl_rl/microduck_headstand_kickup_legs_together/wandb_checkpoints/gx4v9lcz/model_1499.pt",
+    "sha256": "c990ee6b12e0e15ec20863b78d52bd31ab6a1d05c26144446bd38ccef3ffddd5"
+  },
+  {
+    "repository": "ZachGarner/microduck-headstand-split",
+    "revision": "ba7289f31f2f23d02f67f39b26bd512653fdee04",
+    "filename": "model_1499.pt",
+    "destination": "logs/rsl_rl/microduck_headstand_kickup/wandb_checkpoints/y2fllvgj/model_1499.pt",
+    "sha256": "66387c82f6f070f1d5990aeb811ae5fd7dbd9a2213f496bda2eb17070824a444"
+  },
+  {
+    "repository": "ZachGarner/microduck-headstand-switch",
+    "revision": "1cbf2592b61cb58ac3bb6ec4d5d6318e3b34f209",
+    "filename": "model_500.pt",
+    "destination": "logs/rsl_rl/microduck_headstand_splitswitch/wandb_checkpoints/whv1lcu7/model_500.pt",
+    "sha256": "974aafda6020f1f4fec0478bcad54db34930d96612bb956c6ff2f7107f3b2561"
+  },
+  {
+    "repository": "ZachGarner/microduck-headstand-backroll",
+    "revision": "aef59e138f3dc6cebc67d809e293e6908146d783",
+    "filename": "model_1999.pt",
+    "destination": "logs/rsl_rl/microduck_headstand_backroll_legs_together/wandb_checkpoints/ax1vgv8z/model_1999.pt",
+    "sha256": "e94cd3256060f09004a3b6210545fdfbe29b5e64084df697d37677e8ae19e8fd"
+  },
+  {
+    "repository": "ZachGarner/microduck-headstand-splitover",
+    "revision": "a988bb01dcaea5487ab9f63228f4bea232993b36",
+    "filename": "model_1499.pt",
+    "destination": "logs/rsl_rl/microduck_headstand_splitover/wandb_checkpoints/2v46kg6g/model_1499.pt",
+    "sha256": "de673ec96b101379b67c347af68b85e9538e392b5fe4fe21e187af95695dbdc9"
+  },
+  {
+    "repository": "pollen-robotics/microduck-policies",
+    "revision": "1b56c396825c052a4e26e95cf2b8d8298af9e9b4",
+    "filename": "alpha_stand.onnx",
+    "destination": "policies/pollen/alpha_stand.onnx",
+    "sha256": "1569268713e40deea795dd2922dba50d3621e15a872855408b6b1b125b1c094b"
+  }
+]

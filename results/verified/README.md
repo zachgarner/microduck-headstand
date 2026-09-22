@@ -31,9 +31,10 @@ The exit counts assess final standing. They do not certify leg shape throughout 
 
 ## Reproduction and evidence
 
-From `microduck_rl/`, with the standing ONNX downloaded and W&B access configured:
+From `microduck_rl/`, download the public checkpoints and standing ONNX, then run:
 
 ```bash
+uv run ../tools/download_policies.py
 uv run ../tools/run_verification.py --routine-seeds 0 1 2 --individual --workers 2
 uv run ../tools/summarize_verification.py
 ```

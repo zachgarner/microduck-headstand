@@ -12,7 +12,7 @@ uv run ../tools/run_verification.py --routine-seeds 0 1 2 --individual --workers
 
 Each run writes a log and JSON report to `results/verified/`. Reports include the seed, checkpoint hashes, per-attempt outcomes, and evaluation-source hashes. The routine reports also include software versions and stage completion times. Automatic resets are disabled.
 
-The checkpoints download from the W&B project `zachgarner-ai/mjlab_microduck` when they are not already cached. This requires W&B access. Download Pollen's `alpha_stand.onnx` from `pollen-robotics/microduck-policies` on Hugging Face to `microduck_rl/policies/pollen/` before running the battery.
+First run `uv run ../tools/download_policies.py` from the training checkout. It downloads the six original checkpoints and Pollen's standing ONNX from public Hugging Face repositories at pinned revisions, verifies their hashes, and fills the evaluator's cache. No login is required. The evaluator retains its historical W&B fallback for missing checkpoints.
 
 ## What counts as success
 

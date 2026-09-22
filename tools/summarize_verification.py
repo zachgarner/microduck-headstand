@@ -49,8 +49,8 @@ def main():
     lines += ["", "The exit counts assess final standing. They do not certify leg shape throughout "
               "the exit trajectory. The split-over check uses the task's mixed original/mirrored starts.", "",
               "## Reproduction and evidence", "",
-              "From `microduck_rl/`, with the standing ONNX downloaded and W&B access configured:", "",
-              "```bash", "uv run ../tools/run_verification.py --routine-seeds 0 1 2 --individual --workers 2",
+              "From `microduck_rl/`, download the public checkpoints and standing ONNX, then run:", "",
+              "```bash", "uv run ../tools/download_policies.py", "uv run ../tools/run_verification.py --routine-seeds 0 1 2 --individual --workers 2",
               "uv run ../tools/summarize_verification.py", "```", "",
               "Each rollout JSON file has a matching raw `.log`. Routine reports record the exact arguments, "
               "software versions, code revisions, evaluator-source hashes, checkpoint hashes and "
