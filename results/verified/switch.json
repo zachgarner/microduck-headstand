@@ -1,0 +1,146 @@
+{
+  "task": "Mjlab-HeadstandSplitSwitch-Flat-MicroDuck",
+  "run": "whv1lcu7",
+  "checkpoint": "model_500.pt",
+  "checkpoint_sha256": "974aafda6020f1f4fec0478bcad54db34930d96612bb956c6ff2f7107f3b2561",
+  "seed": 0,
+  "episodes": 32,
+  "seconds": 5.0,
+  "successes": 32,
+  "reset_count": 0,
+  "median_switch_time_s": 0.32,
+  "tool_sha256": {
+    "check_switch.py": "98a19b82fd4887d56c50ae3b296921509048715a85c79589f60f4837159aa343",
+    "eval_checkpoint.py": "bb12b02d3a1562b350a008bf6436a3adc4be1f187f8dbaae44efc9b24a60a893"
+  },
+  "per_episode": [
+    {
+      "success": true,
+      "switch_time_s": 0.36
+    },
+    {
+      "success": true,
+      "switch_time_s": 0.32
+    },
+    {
+      "success": true,
+      "switch_time_s": 0.24
+    },
+    {
+      "success": true,
+      "switch_time_s": 0.32
+    },
+    {
+      "success": true,
+      "switch_time_s": 0.26
+    },
+    {
+      "success": true,
+      "switch_time_s": 0.34
+    },
+    {
+      "success": true,
+      "switch_time_s": 0.3
+    },
+    {
+      "success": true,
+      "switch_time_s": 0.22
+    },
+    {
+      "success": true,
+      "switch_time_s": 0.32
+    },
+    {
+      "success": true,
+      "switch_time_s": 0.32
+    },
+    {
+      "success": true,
+      "switch_time_s": 0.24
+    },
+    {
+      "success": true,
+      "switch_time_s": 0.32
+    },
+    {
+      "success": true,
+      "switch_time_s": 0.32
+    },
+    {
+      "success": true,
+      "switch_time_s": 0.32
+    },
+    {
+      "success": true,
+      "switch_time_s": 0.32
+    },
+    {
+      "success": true,
+      "switch_time_s": 0.36
+    },
+    {
+      "success": true,
+      "switch_time_s": 0.28
+    },
+    {
+      "success": true,
+      "switch_time_s": 0.28
+    },
+    {
+      "success": true,
+      "switch_time_s": 0.36
+    },
+    {
+      "success": true,
+      "switch_time_s": 0.32
+    },
+    {
+      "success": true,
+      "switch_time_s": 0.22
+    },
+    {
+      "success": true,
+      "switch_time_s": 0.26
+    },
+    {
+      "success": true,
+      "switch_time_s": 0.34
+    },
+    {
+      "success": true,
+      "switch_time_s": 0.36
+    },
+    {
+      "success": true,
+      "switch_time_s": 0.22
+    },
+    {
+      "success": true,
+      "switch_time_s": 0.24
+    },
+    {
+      "success": true,
+      "switch_time_s": 0.22
+    },
+    {
+      "success": true,
+      "switch_time_s": 0.42
+    },
+    {
+      "success": true,
+      "switch_time_s": 0.34
+    },
+    {
+      "success": true,
+      "switch_time_s": 0.3
+    },
+    {
+      "success": true,
+      "switch_time_s": 0.36
+    },
+    {
+      "success": true,
+      "switch_time_s": 0.38
+    }
+  ]
+}

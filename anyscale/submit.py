@@ -1,7 +1,7 @@
 """Submit one training run to Anyscale.
 
     uv run anyscale/submit.py --task Mjlab-HeadstandKickup-Flat-MicroDuck --name kickup-4 --iterations 1500 \
-        --warm-start 076n5wpa:model_999.pt --env HEADSTAND_OMEGA_MAX=2.0 --env HEADSTAND_BANK_PROB=0.5
+        --warm-start 076n5wpa:model_999.pt --factory-json '{"omega_max": 2.0, "handover_prob": 0.5}'
 
 One L40S node (g6e.xlarge) per run, about 2.1 s per iteration at 4,096 envs.
 The wandb key comes from ~/.netrc (wandb login) and is passed with --env on
@@ -9,7 +9,7 @@ the command line, because this anyscale CLI (0.26) does not substitute
 ${VAR} placeholders inside the YAML. Checkpoints land in the wandb run and in
 the artifact bucket under microduck/<name>/logs/. README.md here lists the runs of record.
 """
-import argparse, netrc, subprocess, tempfile
+import argparse, json, netrc, shlex, subprocess, tempfile
 from pathlib import Path
 
 HERE = Path(__file__).parent
@@ -23,21 +23,30 @@ def main():
     p.add_argument("--envs", type=int, default=4096)
     p.add_argument("--warm-start", default=None, help="wandb run:checkpoint to start from, e.g. 076n5wpa:model_999.pt")
     p.add_argument("--env", action="append", default=[], help="KEY=VALUE knob read by the env cfg (repeatable)")
+    p.add_argument("--factory-json", default=None, help="JSON object of explicit task factory overrides")
     p.add_argument("--instance", default="g6e.xlarge")
     p.add_argument("--working-dir", default=".", help="this repo's root; the job cds into microduck_rl/")
     p.add_argument("--dry-run", action="store_true")
     a = p.parse_args()
 
     entry = f"cd microduck_rl && bash ../anyscale/train.sh {a.task} --env.scene.num-envs {a.envs} --agent.max_iterations {a.iterations}"
+    if a.factory_json is not None:
+        overrides = json.loads(a.factory_json)
+        if not isinstance(overrides, dict):
+            p.error("--factory-json must be an object")
+        entry += " --factory-json " + shlex.quote(json.dumps(overrides))
     env = {"RUN_NAME": f"headstand-{a.name}"}
     if a.warm_start:
         run, ck = a.warm_start.split(":")
         entry += f" --agent.resume True --wandb-run-path zachgarner-ai/mjlab_microduck/{run} --wandb-checkpoint-name {ck}"
         env["MICRODUCK_WARM_START"] = "1"   # restart the curricula at 0; keep the weights
     for kv in a.env:
-        k, v = kv.split("=", 1); env[k] = v
+        k, v = kv.split("=", 1)
+        if k.startswith("HEADSTAND_"):
+            p.error("HEADSTAND_* knobs are obsolete; use --factory-json")
+        env[k] = v
     yaml = (HERE / "job-template.yaml").read_text()
-    yaml = yaml.replace("__NAME__", f"microduck-headstand-{a.name}").replace("__ENTRYPOINT__", entry).replace("__INSTANCE__", a.instance)
+    yaml = yaml.replace("__NAME__", f"microduck-headstand-{a.name}").replace("__ENTRYPOINT__", json.dumps(entry)).replace("__INSTANCE__", a.instance)
     yaml = yaml.replace("__ENV_VARS__", "\n".join(f"  {k}: \"{v}\"" for k, v in env.items()))
     print(yaml)
     if a.dry_run:

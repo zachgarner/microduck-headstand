@@ -1,0 +1,8 @@
+{
+  "method": "CPU mj_forward of saved qpos/qvel on scene_allcollisions.xml; diagnostic only, not a replay of Warp contact history",
+  "states": 512,
+  "contacts": {
+    "ankle_left,ankle_right,jaw_soft": 511,
+    "ankle_left,jaw_soft": 1
+  }
+}

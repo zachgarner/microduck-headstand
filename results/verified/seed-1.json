@@ -1,0 +1,632 @@
+{
+  "seed": 1,
+  "episodes": 32,
+  "seconds": 18.0,
+  "successes": 29,
+  "completed_stages": 29,
+  "final_standing": 30,
+  "reset_count": 0,
+  "arguments": {
+    "fold": "vorty4kb:model_1000.pt",
+    "roll": "ax1vgv8z:model_1999.pt",
+    "split": "y2fllvgj:model_1499.pt",
+    "legs_together": "gx4v9lcz:model_1499.pt",
+    "splitexit": null,
+    "stand": "policies/pollen/alpha_stand.onnx",
+    "switch": "whv1lcu7:model_500.pt",
+    "switch_hold_s": 1.0,
+    "orbit_deg_s": 0.0,
+    "single_switch": true,
+    "splitover": "2v46kg6g:model_1499.pt",
+    "splitroll": null,
+    "hold_s": 2.0,
+    "episodes": 32,
+    "seconds": 18.0,
+    "video": null,
+    "settle_s": 1.0,
+    "pike_settle_s": 0.0,
+    "seed": 1,
+    "json": "/Users/zach/zx/microduck/microduck-headstand/results/verified/seed-1.json"
+  },
+  "training_revision": "d0680f3d94774d612e7e90bea2eb1635e4eed869",
+  "tools_revision": "7c255aa27d4241ed15102b70883ace658f21730a",
+  "tool_sha256": {
+    "routine_full.py": "6fc2ef34ea23d6ffca963ebb088b51362a60c432e86b2dbc2395d595f81a7074",
+    "eval_checkpoint.py": "bb12b02d3a1562b350a008bf6436a3adc4be1f187f8dbaae44efc9b24a60a893"
+  },
+  "checkpoint_sha256": {
+    "Mjlab-HeadstandFold-Flat-MicroDuck": {
+      "spec": "vorty4kb:model_1000.pt",
+      "sha256": "82a97cbc871c718f82a467682c014555f64c78e9e9ce33438a2bc3a75636eec5"
+    },
+    "Mjlab-HeadstandKickupLegsTogether-Flat-MicroDuck": {
+      "spec": "gx4v9lcz:model_1499.pt",
+      "sha256": "c990ee6b12e0e15ec20863b78d52bd31ab6a1d05c26144446bd38ccef3ffddd5"
+    },
+    "Mjlab-HeadstandBackrollLegsTogether-Flat-MicroDuck": {
+      "spec": "ax1vgv8z:model_1999.pt",
+      "sha256": "e94cd3256060f09004a3b6210545fdfbe29b5e64084df697d37677e8ae19e8fd"
+    },
+    "Mjlab-HeadstandKickup-Flat-MicroDuck": {
+      "spec": "y2fllvgj:model_1499.pt",
+      "sha256": "66387c82f6f070f1d5990aeb811ae5fd7dbd9a2213f496bda2eb17070824a444"
+    },
+    "Mjlab-HeadstandSplitSwitch-Flat-MicroDuck": {
+      "spec": "whv1lcu7:model_500.pt",
+      "sha256": "974aafda6020f1f4fec0478bcad54db34930d96612bb956c6ff2f7107f3b2561"
+    },
+    "Mjlab-HeadstandSplitOver-Flat-MicroDuck": {
+      "spec": "2v46kg6g:model_1499.pt",
+      "sha256": "de673ec96b101379b67c347af68b85e9538e392b5fe4fe21e187af95695dbdc9"
+    }
+  },
+  "standing_onnx_sha256": "1569268713e40deea795dd2922dba50d3621e15a872855408b6b1b125b1c094b",
+  "versions": {
+    "mjlab": "1.3.0",
+    "mujoco": "3.10.0",
+    "torch": "2.9.1",
+    "warp-lang": "1.12.0"
+  },
+  "leg_thresholds_rad": {
+    "max_knee": 0.3,
+    "together_max_separation": 0.2,
+    "split_min_separation": 1.0
+  },
+  "stages": [
+    "fold",
+    "legs_together",
+    "roll",
+    "settle",
+    "fold2",
+    "split",
+    "switch",
+    "splitover",
+    "settle2"
+  ],
+  "per_episode": [
+    {
+      "episode": 0,
+      "success": true,
+      "completed_stages": 9,
+      "final_standing": true,
+      "stage_times_s": [
+        0.8200000000000001,
+        3.34,
+        4.32,
+        5.32,
+        6.18,
+        8.58,
+        10.040000000000001,
+        11.1,
+        12.1
+      ]
+    },
+    {
+      "episode": 1,
+      "success": true,
+      "completed_stages": 9,
+      "final_standing": true,
+      "stage_times_s": [
+        0.86,
+        3.2600000000000002,
+        4.38,
+        5.38,
+        6.18,
+        8.58,
+        10.040000000000001,
+        11.02,
+        12.02
+      ]
+    },
+    {
+      "episode": 2,
+      "success": true,
+      "completed_stages": 9,
+      "final_standing": true,
+      "stage_times_s": [
+        0.8200000000000001,
+        3.24,
+        4.26,
+        5.26,
+        6.140000000000001,
+        8.540000000000001,
+        10.02,
+        11.1,
+        12.1
+      ]
+    },
+    {
+      "episode": 3,
+      "success": true,
+      "completed_stages": 9,
+      "final_standing": true,
+      "stage_times_s": [
+        0.88,
+        3.3200000000000003,
+        4.3,
+        5.68,
+        6.5200000000000005,
+        8.96,
+        10.38,
+        12.36,
+        13.36
+      ]
+    },
+    {
+      "episode": 4,
+      "success": true,
+      "completed_stages": 9,
+      "final_standing": true,
+      "stage_times_s": [
+        0.84,
+        3.2800000000000002,
+        4.8,
+        5.8,
+        6.66,
+        9.08,
+        10.56,
+        12.18,
+        13.18
+      ]
+    },
+    {
+      "episode": 5,
+      "success": true,
+      "completed_stages": 9,
+      "final_standing": true,
+      "stage_times_s": [
+        0.84,
+        3.2600000000000002,
+        4.34,
+        5.34,
+        6.12,
+        8.52,
+        9.94,
+        10.98,
+        12.200000000000001
+      ]
+    },
+    {
+      "episode": 6,
+      "success": true,
+      "completed_stages": 9,
+      "final_standing": true,
+      "stage_times_s": [
+        0.86,
+        3.2600000000000002,
+        4.24,
+        5.24,
+        6.08,
+        8.48,
+        9.94,
+        10.94,
+        12.040000000000001
+      ]
+    },
+    {
+      "episode": 7,
+      "success": true,
+      "completed_stages": 9,
+      "final_standing": true,
+      "stage_times_s": [
+        0.9,
+        3.3200000000000003,
+        4.88,
+        5.88,
+        6.7,
+        9.1,
+        10.58,
+        11.66,
+        12.66
+      ]
+    },
+    {
+      "episode": 8,
+      "success": true,
+      "completed_stages": 9,
+      "final_standing": true,
+      "stage_times_s": [
+        0.86,
+        3.2600000000000002,
+        4.26,
+        5.26,
+        6.08,
+        8.5,
+        9.96,
+        11.1,
+        12.1
+      ]
+    },
+    {
+      "episode": 9,
+      "success": true,
+      "completed_stages": 9,
+      "final_standing": true,
+      "stage_times_s": [
+        0.84,
+        3.2,
+        4.32,
+        5.32,
+        6.2,
+        8.6,
+        10.08,
+        11.1,
+        12.1
+      ]
+    },
+    {
+      "episode": 10,
+      "success": true,
+      "completed_stages": 9,
+      "final_standing": true,
+      "stage_times_s": [
+        0.92,
+        3.3000000000000003,
+        4.86,
+        5.86,
+        6.72,
+        9.120000000000001,
+        10.58,
+        11.64,
+        12.64
+      ]
+    },
+    {
+      "episode": 11,
+      "success": true,
+      "completed_stages": 9,
+      "final_standing": true,
+      "stage_times_s": [
+        0.92,
+        3.3200000000000003,
+        7.16,
+        8.16,
+        9.02,
+        11.4,
+        12.84,
+        13.94,
+        14.94
+      ]
+    },
+    {
+      "episode": 12,
+      "success": true,
+      "completed_stages": 9,
+      "final_standing": true,
+      "stage_times_s": [
+        0.9,
+        3.3200000000000003,
+        4.34,
+        5.34,
+        6.22,
+        8.64,
+        10.08,
+        11.02,
+        12.02
+      ]
+    },
+    {
+      "episode": 13,
+      "success": false,
+      "completed_stages": 8,
+      "final_standing": true,
+      "stage_times_s": [
+        0.88,
+        3.2800000000000002,
+        10.200000000000001,
+        11.200000000000001,
+        12.0,
+        14.44,
+        15.9,
+        17.06,
+        -1.0
+      ]
+    },
+    {
+      "episode": 14,
+      "success": true,
+      "completed_stages": 9,
+      "final_standing": true,
+      "stage_times_s": [
+        0.84,
+        3.2600000000000002,
+        4.6000000000000005,
+        5.6000000000000005,
+        6.46,
+        8.86,
+        10.34,
+        11.6,
+        12.6
+      ]
+    },
+    {
+      "episode": 15,
+      "success": false,
+      "completed_stages": 1,
+      "final_standing": false,
+      "stage_times_s": [
+        0.8200000000000001,
+        -1.0,
+        -1.0,
+        -1.0,
+        -1.0,
+        -1.0,
+        -1.0,
+        -1.0,
+        -1.0
+      ]
+    },
+    {
+      "episode": 16,
+      "success": true,
+      "completed_stages": 9,
+      "final_standing": true,
+      "stage_times_s": [
+        0.9,
+        3.34,
+        4.68,
+        5.68,
+        6.5200000000000005,
+        8.94,
+        10.4,
+        11.4,
+        12.4
+      ]
+    },
+    {
+      "episode": 17,
+      "success": true,
+      "completed_stages": 9,
+      "final_standing": true,
+      "stage_times_s": [
+        0.88,
+        3.2600000000000002,
+        4.36,
+        5.36,
+        6.2,
+        8.6,
+        10.120000000000001,
+        11.42,
+        12.42
+      ]
+    },
+    {
+      "episode": 18,
+      "success": true,
+      "completed_stages": 9,
+      "final_standing": true,
+      "stage_times_s": [
+        0.8200000000000001,
+        3.22,
+        5.38,
+        6.38,
+        7.2,
+        9.6,
+        11.1,
+        12.38,
+        13.38
+      ]
+    },
+    {
+      "episode": 19,
+      "success": true,
+      "completed_stages": 9,
+      "final_standing": true,
+      "stage_times_s": [
+        0.84,
+        3.22,
+        4.2,
+        5.2,
+        5.98,
+        8.38,
+        9.8,
+        10.78,
+        11.78
+      ]
+    },
+    {
+      "episode": 20,
+      "success": true,
+      "completed_stages": 9,
+      "final_standing": true,
+      "stage_times_s": [
+        0.96,
+        3.36,
+        4.98,
+        5.98,
+        6.82,
+        9.26,
+        10.68,
+        12.540000000000001,
+        13.72
+      ]
+    },
+    {
+      "episode": 21,
+      "success": true,
+      "completed_stages": 9,
+      "final_standing": true,
+      "stage_times_s": [
+        0.86,
+        3.2600000000000002,
+        4.3,
+        5.3,
+        6.1000000000000005,
+        8.52,
+        9.98,
+        11.18,
+        12.18
+      ]
+    },
+    {
+      "episode": 22,
+      "success": true,
+      "completed_stages": 9,
+      "final_standing": true,
+      "stage_times_s": [
+        0.86,
+        3.2600000000000002,
+        4.26,
+        5.26,
+        6.1000000000000005,
+        8.52,
+        9.94,
+        11.040000000000001,
+        12.040000000000001
+      ]
+    },
+    {
+      "episode": 23,
+      "success": true,
+      "completed_stages": 9,
+      "final_standing": true,
+      "stage_times_s": [
+        0.84,
+        3.24,
+        4.24,
+        5.24,
+        6.1000000000000005,
+        8.540000000000001,
+        10.0,
+        11.14,
+        12.14
+      ]
+    },
+    {
+      "episode": 24,
+      "success": true,
+      "completed_stages": 9,
+      "final_standing": true,
+      "stage_times_s": [
+        0.92,
+        3.3200000000000003,
+        5.04,
+        6.36,
+        7.16,
+        9.6,
+        11.06,
+        12.16,
+        13.16
+      ]
+    },
+    {
+      "episode": 25,
+      "success": true,
+      "completed_stages": 9,
+      "final_standing": true,
+      "stage_times_s": [
+        0.9400000000000001,
+        3.34,
+        8.68,
+        9.68,
+        10.52,
+        12.94,
+        14.42,
+        16.94,
+        17.94
+      ]
+    },
+    {
+      "episode": 26,
+      "success": true,
+      "completed_stages": 9,
+      "final_standing": true,
+      "stage_times_s": [
+        0.9,
+        3.34,
+        4.32,
+        5.32,
+        6.140000000000001,
+        8.540000000000001,
+        9.96,
+        10.96,
+        11.96
+      ]
+    },
+    {
+      "episode": 27,
+      "success": true,
+      "completed_stages": 9,
+      "final_standing": true,
+      "stage_times_s": [
+        0.86,
+        3.24,
+        4.22,
+        5.22,
+        6.0600000000000005,
+        8.46,
+        9.92,
+        11.1,
+        12.1
+      ]
+    },
+    {
+      "episode": 28,
+      "success": true,
+      "completed_stages": 9,
+      "final_standing": true,
+      "stage_times_s": [
+        0.88,
+        3.3000000000000003,
+        4.28,
+        5.64,
+        6.5600000000000005,
+        8.98,
+        10.44,
+        11.540000000000001,
+        12.540000000000001
+      ]
+    },
+    {
+      "episode": 29,
+      "success": true,
+      "completed_stages": 9,
+      "final_standing": true,
+      "stage_times_s": [
+        0.9400000000000001,
+        3.34,
+        4.32,
+        5.5600000000000005,
+        6.42,
+        8.82,
+        10.28,
+        11.4,
+        12.4
+      ]
+    },
+    {
+      "episode": 30,
+      "success": true,
+      "completed_stages": 9,
+      "final_standing": true,
+      "stage_times_s": [
+        0.92,
+        3.3000000000000003,
+        4.38,
+        5.38,
+        6.22,
+        8.620000000000001,
+        10.08,
+        11.22,
+        12.22
+      ]
+    },
+    {
+      "episode": 31,
+      "success": false,
+      "completed_stages": 2,
+      "final_standing": false,
+      "stage_times_s": [
+        0.84,
+        3.2,
+        -1.0,
+        -1.0,
+        -1.0,
+        -1.0,
+        -1.0,
+        -1.0,
+        -1.0
+      ]
+    }
+  ]
+}

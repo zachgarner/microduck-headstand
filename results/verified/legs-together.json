@@ -1,0 +1,150 @@
+{
+  "task": "Mjlab-HeadstandKickupLegsTogether-Flat-MicroDuck",
+  "run": "gx4v9lcz",
+  "checkpoint": "model_1499.pt",
+  "checkpoint_sha256": "c990ee6b12e0e15ec20863b78d52bd31ab6a1d05c26144446bd38ccef3ffddd5",
+  "seed": 0,
+  "bucket": "handover",
+  "episodes": 32,
+  "steps": 298,
+  "seconds": 5.96,
+  "successes": 32,
+  "median_time_to_goal_s": 0.4,
+  "sampled_head_force_median_n": 8.981237411499023,
+  "sampled_head_force_max_n": 17.67272186279297,
+  "reset_count": 0,
+  "tool_sha256": {
+    "check32.py": "d70963e6c1dcc69e311e9c57041d4d3e3a236532790321bfc39b9c6f8e3d4f51",
+    "eval_checkpoint.py": "bb12b02d3a1562b350a008bf6436a3adc4be1f187f8dbaae44efc9b24a60a893"
+  },
+  "per_episode": [
+    {
+      "success": true,
+      "first_goal_s": 0.4
+    },
+    {
+      "success": true,
+      "first_goal_s": 0.4
+    },
+    {
+      "success": true,
+      "first_goal_s": 0.42
+    },
+    {
+      "success": true,
+      "first_goal_s": 0.42
+    },
+    {
+      "success": true,
+      "first_goal_s": 0.42
+    },
+    {
+      "success": true,
+      "first_goal_s": 0.4
+    },
+    {
+      "success": true,
+      "first_goal_s": 0.4
+    },
+    {
+      "success": true,
+      "first_goal_s": 0.4
+    },
+    {
+      "success": true,
+      "first_goal_s": 0.4
+    },
+    {
+      "success": true,
+      "first_goal_s": 0.4
+    },
+    {
+      "success": true,
+      "first_goal_s": 0.42
+    },
+    {
+      "success": true,
+      "first_goal_s": 0.4
+    },
+    {
+      "success": true,
+      "first_goal_s": 0.4
+    },
+    {
+      "success": true,
+      "first_goal_s": 0.42
+    },
+    {
+      "success": true,
+      "first_goal_s": 0.42
+    },
+    {
+      "success": true,
+      "first_goal_s": 0.4
+    },
+    {
+      "success": true,
+      "first_goal_s": 0.38
+    },
+    {
+      "success": true,
+      "first_goal_s": 0.4
+    },
+    {
+      "success": true,
+      "first_goal_s": 0.42
+    },
+    {
+      "success": true,
+      "first_goal_s": 0.42
+    },
+    {
+      "success": true,
+      "first_goal_s": 0.38
+    },
+    {
+      "success": true,
+      "first_goal_s": 0.38
+    },
+    {
+      "success": true,
+      "first_goal_s": 0.4
+    },
+    {
+      "success": true,
+      "first_goal_s": 0.38
+    },
+    {
+      "success": true,
+      "first_goal_s": 0.4
+    },
+    {
+      "success": true,
+      "first_goal_s": 0.4
+    },
+    {
+      "success": true,
+      "first_goal_s": 0.38
+    },
+    {
+      "success": true,
+      "first_goal_s": 0.42
+    },
+    {
+      "success": true,
+      "first_goal_s": 0.42
+    },
+    {
+      "success": true,
+      "first_goal_s": 0.4
+    },
+    {
+      "success": true,
+      "first_goal_s": 0.42
+    },
+    {
+      "success": true,
+      "first_goal_s": 0.38
+    }
+  ]
+}

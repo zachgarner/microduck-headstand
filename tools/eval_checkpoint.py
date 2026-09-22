@@ -17,6 +17,7 @@ down. Numbers are what the rollouts show, nothing is extrapolated.
 import argparse
 import os
 import math
+import numpy as np
 from dataclasses import asdict
 from pathlib import Path
 
@@ -35,19 +36,84 @@ HEAD = {"jaw_soft", "yaw_roll_motion", "neck_pitch"}
 FEET = {"ankle_left", "ankle_right"}
 
 
-def floor_bodies(env) -> list[set]:
-    """Bodies touching the terrain in each env, from the three headstand sensors."""
+def contacts(env) -> dict:
+    """What each env touches the floor with, from the headstand sensors.
+
+    feet is a COUNT (0, 1 or 2), not a flag: the pike and standing need both
+    feet, and a one-foot pose passed every check that collapsed them.
+    """
     head = microduck_mdp._sensor_any_contact(env, microduck_mdp._HEADSTAND_HEAD_SENSOR)
-    feet = microduck_mdp._sensor_any_contact(env, microduck_mdp._HEADSTAND_FEET_SENSOR)
     other = microduck_mdp._sensor_any_contact(env, microduck_mdp._HEADSTAND_OTHER_SENSOR)
+    found = env.scene.sensors[microduck_mdp._HEADSTAND_FEET_SENSOR].data.found
+    per_foot = (found.view(found.shape[0], -1) > 0)
+    if per_foot.shape[-1] != 2:
+        raise ValueError(f"the feet sensor must have one slot per foot, got {per_foot.shape[-1]}")
+    return {"head": head.cpu().numpy(), "feet": per_foot.sum(dim=-1).cpu().numpy(),
+            "other": other.cpu().numpy()}
+
+
+def in_headstand(env, asset, deg: float = 35.0) -> "np.ndarray":
+    """Inverted within `deg` AND supported by the head alone: no foot, nothing
+    else. Angle alone passes a duck propped on a foot."""
+    inv = microduck_mdp._inverted_cos(asset).cpu().numpy()
+    c = contacts(env)
+    return (inv > math.cos(math.radians(deg))) & c["head"] & (c["feet"] == 0) & ~c["other"]
+
+
+def leg_shape_ok(joints, style):
+    """Full leg-shape thresholds: knees <= 0.3 rad; together <= 0.2,
+    split >= 1.0 rad. Hip separation uses the mirrored joint convention.
+    These thresholds are fixed before evaluation and match full training gates.
+    """
+    q = np.asarray(joints)
+    knees = np.maximum(np.abs(q[:, 3]), np.abs(q[:, 12])) <= 0.3
+    separation = np.abs(q[:, 2] + q[:, 11])
+    if style == "legs_together":
+        return knees & (separation <= 0.2)
+    if style == "split":
+        return knees & (separation >= 1.0)
+    raise ValueError(f"Unknown leg style: {style}")
+
+
+def in_shaped_headstand(env, asset, style):
+    return in_headstand(env, asset) & leg_shape_ok(
+        microduck_mdp._servo_joint_pos(env, asset).cpu().numpy(), style
+    )
+
+
+def routine_success(stage, stage_count, standing):
+    """Every required hold completed AND strictly standing at the last frame."""
+    return (np.asarray(stage) == stage_count) & np.asarray(standing, dtype=bool)
+
+
+def in_pike(env, asset) -> "np.ndarray":
+    """Resting in the pike: head and BOTH feet down, nothing else, nose down,
+    trunk 60-95 degrees from standing. Matches the fold's training gate."""
+    c = contacts(env)
+    nose = microduck_mdp._nose_up(asset).cpu().numpy()
+    pitch = np.degrees(microduck_mdp._trunk_pitch(asset).cpu().numpy())
+    return c["head"] & (c["feet"] == 2) & ~c["other"] & (nose < -0.3) & (pitch >= 60) & (pitch <= 95)
+
+
+def is_standing(env, asset, deg: float = 30.0) -> "np.ndarray":
+    """Upright on both feet, nothing else touching."""
+    inv = microduck_mdp._inverted_cos(asset).cpu().numpy()
+    c = contacts(env)
+    return (c["feet"] == 2) & ~c["head"] & ~c["other"] & (inv < -math.cos(math.radians(deg)))
+
+
+def floor_bodies(env) -> list[set]:
+    """The old label set, kept for the end-state classifier. "foot" means at
+    least one foot; use contacts() when the count matters."""
+    c = contacts(env)
     out = []
     for i in range(env.num_envs):
         s = set()
-        if head is not None and bool(head[i]):
+        if c["head"][i]:
             s.add("head")
-        if feet is not None and bool(feet[i]):
+        if c["feet"][i] > 0:
             s.add("foot")
-        if other is not None and bool(other[i]):
+        if c["other"][i]:
             s.add("other")
         out.append(s)
     return out
@@ -73,6 +139,10 @@ def classify(inverted_cos: float, touching: set, nose_up: float = 0.0) -> str:
 def force_spawn(env, bucket: str):
     """Point the spawn event at one bucket via the manager (cfg writes are no-ops).
 
+    Every bucket is set, so no weight the task registers can leak into a
+    forced start. "pike" is the measured resting pike, "handover" a recorded
+    one. "tripod" and "bank" are the old names, kept so older commands run.
+
     "tripod" is the partway bucket pinned to 90-110° with legs near HOME: head
     down, feet down, the state the kick-up policy has to leave.
     """
@@ -83,7 +153,7 @@ def force_spawn(env, bucket: str):
     term.params["partway_prob"] = 1.0 if bucket == "partway" else 0.0
     term.params["hold_prob"] = 1.0 if bucket == "hold" else 0.0
     term.params["pike_prob"] = 1.0 if bucket in ("tripod", "pike") else 0.0   # the measured RESTING pike
-    term.params["bank_prob"] = 1.0 if bucket == "bank" else 0.0       # pikes as the fold policy leaves them
+    term.params["handover_prob"] = 1.0 if bucket in ("bank", "handover") else 0.0   # pikes as the fold policy leaves them
     if bucket.startswith("pitch"):   # e.g. "pitch150": dropped head-down at that angle
         deg = float(bucket[5:])
         term.params["partway_prob"] = 1.0

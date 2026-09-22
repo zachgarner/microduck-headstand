@@ -8,7 +8,7 @@ how many end inverted on the head in the MIRRORED split (closer to the
 mirrored target than to the original), and how many are still inverted at
 all. Terminations are disabled; resets inside the rollout are counted.
 """
-import argparse, math, sys
+import argparse, hashlib, json, math, sys
 sys.path.insert(0, str(__import__("pathlib").Path(__file__).parent)); sys.path.insert(0, str(__import__("pathlib").Path(__file__).parent.parent / "tools"))
 from dataclasses import asdict
 from pathlib import Path
@@ -21,20 +21,29 @@ from mjlab.rl import RslRlVecEnvWrapper
 from mjlab.tasks.registry import load_env_cfg, load_rl_cfg, load_runner_cls
 from mjlab_microduck.tasks import mdp as m
 from mjlab_microduck.tasks.microduck_headstand_env_cfg import HEADSTAND_OVERRIDES
-from eval_checkpoint import force_spawn, floor_bodies
+from eval_checkpoint import force_spawn, in_shaped_headstand
+
+def in_headstand(env, asset):
+    return in_shaped_headstand(env, asset, "split")
 
 TASK = "Mjlab-HeadstandSplitSwitch-Flat-MicroDuck"
 p = argparse.ArgumentParser()
 p.add_argument("--run", required=True); p.add_argument("--checkpoint", required=True)
 p.add_argument("--episodes", type=int, default=32); p.add_argument("--video", default=None)
 p.add_argument("--flip-at", type=float, default=1.5); p.add_argument("--seconds", type=float, default=5.0)
+p.add_argument("--seed", type=int, default=0)
+p.add_argument("--json", type=Path)
 args = p.parse_args()
+torch.set_num_threads(4)
 exp = load_rl_cfg(TASK).experiment_name
 ck = Path("logs/rsl_rl") / exp / "wandb_checkpoints" / args.run / args.checkpoint
 if not ck.exists():
     import wandb
     wandb.Api().run(f"zachgarner-ai/mjlab_microduck/runs/{args.run}").file(args.checkpoint).download(str(ck.parent), replace=True)
 cfg = load_env_cfg(TASK, play=True); cfg.scene.num_envs = args.episodes; cfg.curriculum.clear()
+cfg.seed = args.seed
+cfg.auto_reset = False
+cfg.episode_length_s = args.seconds + 1
 for n in list(cfg.terminations):
     if n != "time_out":
         del cfg.terminations[n]
@@ -61,25 +70,24 @@ frames = []; t_mirror = np.full(N, -1.0); resets = 0
 with torch.no_grad():
     for i in range(steps):
         if i == flip:
-            print(f"before the flip (t={i*env.step_dt:.2f} s): inverted {int((m._inverted_cos(asset) > math.cos(math.radians(35))).sum())}/{N}, "
+            print(f"before the flip (t={i*env.step_dt:.2f} s): in a headstand {int(in_headstand(env, asset).sum())}/{N}, "
                   f"nearer the original split {int((dist(target) < dist(mirrored)).sum())}/{N}")
             cmd.vel_command_b[:, 0] = 1.0
+            obs["actor"][:, 48] = 1.0
         obs, *_ = w.step(policy(obs))
         resets += int((env.episode_length_buf == 0).sum())
-        if i > flip:
-            inv = m._inverted_cos(asset) > math.cos(math.radians(35))
-            arrived = (inv & (dist(mirrored) < dist(target))).numpy() & (t_mirror < 0)
-            t_mirror[arrived] = (i - flip) * env.step_dt
+        if i >= flip:
+            arrived = in_headstand(env, asset) & (dist(mirrored) < dist(target)).numpy() & (t_mirror < 0)
+            t_mirror[arrived] = (i + 1 - flip) * env.step_dt
         if args.video:
             frames.append(env.render())
-inv = (m._inverted_cos(asset) > math.cos(math.radians(35))).numpy()
-touching = floor_bodies(env)
-on_head = np.array([t == {"head"} for t in touching])
+# "inverted" here means the training gate: head alone on the floor, no foot.
+inv = in_headstand(env, asset)
 near_mirror = (dist(mirrored) < dist(target)).numpy()
 alpha = getattr(cmd, "alpha", None)
 print(f"{args.run} {args.checkpoint}: {N} episodes from the split hold, flag flipped at {args.flip_at} s, resets inside rollout: {resets}")
 print(f"  alpha at the end: {float(alpha.mean()) if alpha is not None else 'n/a'}")
-print(f"  inverted at the end: {int(inv.sum())}/{N}; on the head alone: {int(on_head.sum())}/{N}")
+print(f"  in a headstand at the end (head alone, no foot): {int(inv.sum())}/{N}")
 print(f"  inverted AND in the mirrored split: {int((inv & near_mirror).sum())}/{N}")
 print(f"  inverted, still the original split: {int((inv & ~near_mirror).sum())}/{N}")
 ok = t_mirror[t_mirror >= 0]
@@ -90,3 +98,17 @@ print(f"  hip pitch at the end (left, right) median: {np.median(lhp):.2f}, {np.m
 if args.video:
     imageio.mimwrite(args.video, frames, fps=int(round(1 / env.step_dt)))
     print(f"  video: {args.video}")
+
+if args.json:
+    success = inv & near_mirror
+    report = {"task": TASK, "run": args.run, "checkpoint": args.checkpoint,
+        "checkpoint_sha256": hashlib.sha256(ck.read_bytes()).hexdigest(),
+        "seed": args.seed, "episodes": N, "seconds": args.seconds,
+        "successes": int(success.sum()), "reset_count": resets,
+        "median_switch_time_s": float(np.median(ok)) if len(ok) else None,
+        "tool_sha256": {name: hashlib.sha256((Path(__file__).parent/name).read_bytes()).hexdigest()
+                        for name in ("check_switch.py", "eval_checkpoint.py")},
+        "per_episode": [{"success": bool(success[j]), "switch_time_s": float(t_mirror[j])} for j in range(N)]}
+    args.json.parent.mkdir(parents=True, exist_ok=True)
+    args.json.write_text(json.dumps(report, indent=2) + "\n")
+env.close()

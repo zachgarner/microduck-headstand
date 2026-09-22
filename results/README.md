@@ -1,6 +1,8 @@
-# Results
+# Historical results
 
-Every video is 32 simulated attempts rendered from the first one, with the simulator's automatic resets off, so a fall stays a fall. The frame strips are the same attempt sampled at the moments the state changes.
+Current seeded evaluations are in [verified/](verified/). The counts below were recorded with earlier evaluators and are retained as experiment history. They are not evidence under the current contact, leg-shape, and final-standing checks.
+
+Videos show one simulated attempt from each historical batch. Frame strips sample that attempt around the transitions. The tables retain the original counts and descriptions; evaluator behavior varied during development.
 
 ## The routine, version by version
 
@@ -12,7 +14,7 @@ Every video is 32 simulated attempts rendered from the first one, with the simul
 | v9 | Split switch added, there and back, before the split exit | 30 of 32 | 14.8 s | `routine/routine_full_v9_switch.mp4`, `routine_full_v8_switch_strip.png` |
 | v13 | The split back roll replaces the split exit and the stand-up, the switch is faster, and the camera orbits through the switches | 30 of 32 | 11.9 s | `routine/routine_full_v13_orbit.mp4`, `routine_full_v13_strip.png` |
 | v14 | One switch instead of there and back, with the exit from the mirrored split | 23 of 32 (a high-variance run, the same policies scored 30 to 32 on other seeds) | 11.7 s | `routine/routine_full_v14_oneswitch.mp4`, `_strip.png` |
-| **v15** | **Split-over exit: legs stay split and straight until the lead foot lands. The record.** | **32 of 32** | 11.8 s | `routine/routine_full_v15_splitover.mp4`, `_strip.png` |
+| **v15** | Split-over exit added. Historical evaluation. | **32 of 32** | 11.8 s | `routine/routine_full_v15_splitover.mp4`, `_strip.png` |
 
 Versions not listed (v2 to v5, v8, v10 to v12) were settle-time and checkpoint experiments. Their numbers are in the training notes on the fork's issue tracker.
 

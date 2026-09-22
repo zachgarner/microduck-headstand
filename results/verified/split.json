@@ -1,0 +1,150 @@
+{
+  "task": "Mjlab-HeadstandKickup-Flat-MicroDuck",
+  "run": "y2fllvgj",
+  "checkpoint": "model_1499.pt",
+  "checkpoint_sha256": "66387c82f6f070f1d5990aeb811ae5fd7dbd9a2213f496bda2eb17070824a444",
+  "seed": 0,
+  "bucket": "handover",
+  "episodes": 32,
+  "steps": 298,
+  "seconds": 5.96,
+  "successes": 32,
+  "median_time_to_goal_s": 0.42,
+  "sampled_head_force_median_n": 9.054665565490723,
+  "sampled_head_force_max_n": 17.901735305786133,
+  "reset_count": 0,
+  "tool_sha256": {
+    "check32.py": "d70963e6c1dcc69e311e9c57041d4d3e3a236532790321bfc39b9c6f8e3d4f51",
+    "eval_checkpoint.py": "bb12b02d3a1562b350a008bf6436a3adc4be1f187f8dbaae44efc9b24a60a893"
+  },
+  "per_episode": [
+    {
+      "success": true,
+      "first_goal_s": 0.4
+    },
+    {
+      "success": true,
+      "first_goal_s": 0.4
+    },
+    {
+      "success": true,
+      "first_goal_s": 0.42
+    },
+    {
+      "success": true,
+      "first_goal_s": 0.42
+    },
+    {
+      "success": true,
+      "first_goal_s": 0.42
+    },
+    {
+      "success": true,
+      "first_goal_s": 0.42
+    },
+    {
+      "success": true,
+      "first_goal_s": 0.4
+    },
+    {
+      "success": true,
+      "first_goal_s": 0.4
+    },
+    {
+      "success": true,
+      "first_goal_s": 0.42
+    },
+    {
+      "success": true,
+      "first_goal_s": 0.42
+    },
+    {
+      "success": true,
+      "first_goal_s": 0.44
+    },
+    {
+      "success": true,
+      "first_goal_s": 0.4
+    },
+    {
+      "success": true,
+      "first_goal_s": 0.42
+    },
+    {
+      "success": true,
+      "first_goal_s": 0.42
+    },
+    {
+      "success": true,
+      "first_goal_s": 0.42
+    },
+    {
+      "success": true,
+      "first_goal_s": 0.38
+    },
+    {
+      "success": true,
+      "first_goal_s": 0.4
+    },
+    {
+      "success": true,
+      "first_goal_s": 0.42
+    },
+    {
+      "success": true,
+      "first_goal_s": 0.46
+    },
+    {
+      "success": true,
+      "first_goal_s": 0.42
+    },
+    {
+      "success": true,
+      "first_goal_s": 0.4
+    },
+    {
+      "success": true,
+      "first_goal_s": 0.4
+    },
+    {
+      "success": true,
+      "first_goal_s": 0.42
+    },
+    {
+      "success": true,
+      "first_goal_s": 0.4
+    },
+    {
+      "success": true,
+      "first_goal_s": 0.4
+    },
+    {
+      "success": true,
+      "first_goal_s": 0.42
+    },
+    {
+      "success": true,
+      "first_goal_s": 0.44
+    },
+    {
+      "success": true,
+      "first_goal_s": 0.42
+    },
+    {
+      "success": true,
+      "first_goal_s": 0.44
+    },
+    {
+      "success": true,
+      "first_goal_s": 0.42
+    },
+    {
+      "success": true,
+      "first_goal_s": 0.4
+    },
+    {
+      "success": true,
+      "first_goal_s": 0.38
+    }
+  ]
+}

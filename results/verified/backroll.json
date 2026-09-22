@@ -1,0 +1,150 @@
+{
+  "task": "Mjlab-HeadstandBackrollLegsTogether-Flat-MicroDuck",
+  "run": "ax1vgv8z",
+  "checkpoint": "model_1999.pt",
+  "checkpoint_sha256": "e94cd3256060f09004a3b6210545fdfbe29b5e64084df697d37677e8ae19e8fd",
+  "seed": 0,
+  "bucket": "hold",
+  "episodes": 32,
+  "steps": 298,
+  "seconds": 5.96,
+  "successes": 32,
+  "median_time_to_goal_s": 0.52,
+  "sampled_head_force_median_n": null,
+  "sampled_head_force_max_n": null,
+  "reset_count": 0,
+  "tool_sha256": {
+    "check32.py": "d70963e6c1dcc69e311e9c57041d4d3e3a236532790321bfc39b9c6f8e3d4f51",
+    "eval_checkpoint.py": "bb12b02d3a1562b350a008bf6436a3adc4be1f187f8dbaae44efc9b24a60a893"
+  },
+  "per_episode": [
+    {
+      "success": true,
+      "first_goal_s": 0.54
+    },
+    {
+      "success": true,
+      "first_goal_s": 0.52
+    },
+    {
+      "success": true,
+      "first_goal_s": 0.54
+    },
+    {
+      "success": true,
+      "first_goal_s": 0.54
+    },
+    {
+      "success": true,
+      "first_goal_s": 0.54
+    },
+    {
+      "success": true,
+      "first_goal_s": 0.52
+    },
+    {
+      "success": true,
+      "first_goal_s": 0.5
+    },
+    {
+      "success": true,
+      "first_goal_s": 0.52
+    },
+    {
+      "success": true,
+      "first_goal_s": 0.52
+    },
+    {
+      "success": true,
+      "first_goal_s": 0.52
+    },
+    {
+      "success": true,
+      "first_goal_s": 0.54
+    },
+    {
+      "success": true,
+      "first_goal_s": 0.5
+    },
+    {
+      "success": true,
+      "first_goal_s": 0.52
+    },
+    {
+      "success": true,
+      "first_goal_s": 0.52
+    },
+    {
+      "success": true,
+      "first_goal_s": 0.52
+    },
+    {
+      "success": true,
+      "first_goal_s": 0.5
+    },
+    {
+      "success": true,
+      "first_goal_s": 0.52
+    },
+    {
+      "success": true,
+      "first_goal_s": 0.54
+    },
+    {
+      "success": true,
+      "first_goal_s": 0.54
+    },
+    {
+      "success": true,
+      "first_goal_s": 0.54
+    },
+    {
+      "success": true,
+      "first_goal_s": 0.54
+    },
+    {
+      "success": true,
+      "first_goal_s": 0.52
+    },
+    {
+      "success": true,
+      "first_goal_s": 0.54
+    },
+    {
+      "success": true,
+      "first_goal_s": 0.54
+    },
+    {
+      "success": true,
+      "first_goal_s": 0.52
+    },
+    {
+      "success": true,
+      "first_goal_s": 0.5
+    },
+    {
+      "success": true,
+      "first_goal_s": 0.5
+    },
+    {
+      "success": true,
+      "first_goal_s": 0.54
+    },
+    {
+      "success": true,
+      "first_goal_s": 0.54
+    },
+    {
+      "success": true,
+      "first_goal_s": 0.52
+    },
+    {
+      "success": true,
+      "first_goal_s": 0.52
+    },
+    {
+      "success": true,
+      "first_goal_s": 0.52
+    }
+  ]
+}

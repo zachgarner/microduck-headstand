@@ -1,0 +1,150 @@
+{
+  "task": "Mjlab-HeadstandSplitOver-Flat-MicroDuck",
+  "run": "2v46kg6g",
+  "checkpoint": "model_1499.pt",
+  "checkpoint_sha256": "de673ec96b101379b67c347af68b85e9538e392b5fe4fe21e187af95695dbdc9",
+  "seed": 0,
+  "bucket": "hold",
+  "episodes": 32,
+  "steps": 298,
+  "seconds": 5.96,
+  "successes": 32,
+  "median_time_to_goal_s": 0.54,
+  "sampled_head_force_median_n": null,
+  "sampled_head_force_max_n": null,
+  "reset_count": 0,
+  "tool_sha256": {
+    "check32.py": "d70963e6c1dcc69e311e9c57041d4d3e3a236532790321bfc39b9c6f8e3d4f51",
+    "eval_checkpoint.py": "bb12b02d3a1562b350a008bf6436a3adc4be1f187f8dbaae44efc9b24a60a893"
+  },
+  "per_episode": [
+    {
+      "success": true,
+      "first_goal_s": 0.52
+    },
+    {
+      "success": true,
+      "first_goal_s": 0.5
+    },
+    {
+      "success": true,
+      "first_goal_s": 0.56
+    },
+    {
+      "success": true,
+      "first_goal_s": 0.52
+    },
+    {
+      "success": true,
+      "first_goal_s": 0.54
+    },
+    {
+      "success": true,
+      "first_goal_s": 0.54
+    },
+    {
+      "success": true,
+      "first_goal_s": 0.7000000000000001
+    },
+    {
+      "success": true,
+      "first_goal_s": 0.56
+    },
+    {
+      "success": true,
+      "first_goal_s": 0.58
+    },
+    {
+      "success": true,
+      "first_goal_s": 0.48
+    },
+    {
+      "success": true,
+      "first_goal_s": 0.54
+    },
+    {
+      "success": true,
+      "first_goal_s": 0.52
+    },
+    {
+      "success": true,
+      "first_goal_s": 0.54
+    },
+    {
+      "success": true,
+      "first_goal_s": 0.72
+    },
+    {
+      "success": true,
+      "first_goal_s": 0.8
+    },
+    {
+      "success": true,
+      "first_goal_s": 0.52
+    },
+    {
+      "success": true,
+      "first_goal_s": 0.48
+    },
+    {
+      "success": true,
+      "first_goal_s": 0.52
+    },
+    {
+      "success": true,
+      "first_goal_s": 0.74
+    },
+    {
+      "success": true,
+      "first_goal_s": 0.7000000000000001
+    },
+    {
+      "success": true,
+      "first_goal_s": 0.54
+    },
+    {
+      "success": true,
+      "first_goal_s": 0.76
+    },
+    {
+      "success": true,
+      "first_goal_s": 0.54
+    },
+    {
+      "success": true,
+      "first_goal_s": 0.52
+    },
+    {
+      "success": true,
+      "first_goal_s": 0.72
+    },
+    {
+      "success": true,
+      "first_goal_s": 0.54
+    },
+    {
+      "success": true,
+      "first_goal_s": 0.54
+    },
+    {
+      "success": true,
+      "first_goal_s": 0.56
+    },
+    {
+      "success": true,
+      "first_goal_s": 0.72
+    },
+    {
+      "success": true,
+      "first_goal_s": 0.58
+    },
+    {
+      "success": true,
+      "first_goal_s": 0.52
+    },
+    {
+      "success": true,
+      "first_goal_s": 0.68
+    }
+  ]
+}

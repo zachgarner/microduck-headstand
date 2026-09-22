@@ -61,4 +61,20 @@ SYNC_PID=$!
 trap 'kill $SYNC_PID 2>/dev/null || true; sync_logs || true; save_warp_cache || true; echo "checkpoints: $DEST/logs/"' EXIT
 
 ( sleep 900; save_warp_cache || true ) &
-uv run train "$TASK" "$@"
+# Pull the optional factory configuration out of the normal mjlab arguments.
+FACTORY_JSON=""
+TRAIN_ARGS=()
+while [ "$#" -gt 0 ]; do
+  if [ "$1" = "--factory-json" ]; then
+    FACTORY_JSON="$2"
+    shift 2
+  else
+    TRAIN_ARGS+=("$1")
+    shift
+  fi
+done
+if [ -n "$FACTORY_JSON" ]; then
+  uv run ../tools/train_variant.py --task "$TASK" --factory-json "$FACTORY_JSON" -- "${TRAIN_ARGS[@]}"
+else
+  uv run train "$TASK" "${TRAIN_ARGS[@]}"
+fi
