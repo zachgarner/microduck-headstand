@@ -1,10 +1,20 @@
-# Historical results
+# Results and videos
+
+## Latest routine recording: v16
+
+[Watch `routine_full_v16_strict.mp4`](routine/routine_full_v16_strict.mp4)
+
+![Routine v16, sampled every two seconds](routine/routine_full_v16_strict_strip.png)
+
+This is the latest recorded demonstration of the full routine. It shows one simulated attempt; the **87/96** result is from the separate seeded runs in [verified/](verified/), not a score inferred from this video.
+
+## Earlier recordings
 
 Current seeded evaluations are in [verified/](verified/). The counts below were recorded with earlier evaluators and are retained as experiment history. They are not evidence under the current contact, leg-shape, and final-standing checks.
 
 Videos show one simulated attempt from each historical batch. Frame strips sample that attempt around the transitions. The tables retain the original counts and descriptions; evaluator behavior varied during development.
 
-## The routine, version by version
+### The routine, version by version
 
 | Version | What changed | Complete | Time | Files |
 | --- | --- | --- | --- | --- |
@@ -18,7 +28,7 @@ Videos show one simulated attempt from each historical batch. Frame strips sampl
 
 Versions not listed (v2 to v5, v8, v10 to v12) were settle-time and checkpoint experiments. Their numbers are in the training notes on the fork's issue tracker.
 
-## Each policy on its own
+### Each policy on its own
 
 Checks from the policy's own start state. Counts are out of 32. "s" is the time to reach the headstand angle and "N" the peak force between the head and the floor.
 
@@ -39,6 +49,6 @@ Checks from the policy's own start state. Counts are out of 32. "s" is the time 
 | Tucked two-leg hop, iteration 750 (a backbend, not kept) | `policies/tucked1_iter750_pike_start.mp4` | 31/32 |
 | The resting pike the kick-ups start from | `policies/tripod_start_pike.png` | |
 
-## Early strips
+### Early strips
 
 `strips/` holds the frame strips from the first two days (the end-to-end headstand task, runs 1 to 4, and the first kick-ups), kept for the record. The tracked findings are in the issue tracker on the fork.

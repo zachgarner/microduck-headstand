@@ -10,11 +10,11 @@ The routine combines six trained policies with Pollen's standing policy. Each po
 
 The routine passed **87/96 attempts** across three seeds, with a median completion time of **12.3 seconds**. Each of the six individual policies passed **32/32**. The evaluation reports and raw logs are in [`results/verified/`](results/verified/). The evaluator requires the intended leg position during the headstand holds, completion of every stage, and standing on both feet at the final frame. It disables automatic resets and records explicit random seeds and checkpoint hashes.
 
-Earlier videos illustrate the movement but were recorded before these checks were tightened. Their historical counts are retained in [`results/README.md`](results/README.md), separately from the verified results.
+The latest routine recording is **v16** below. It demonstrates one simulated attempt; the 87/96 count comes from the separate seeded evaluation reports. Earlier recordings and their historical counts are retained in [`results/README.md`](results/README.md).
 
-[Watch the earlier routine video](results/routine/routine_full_v15_splitover.mp4)
+[Watch the latest routine video — v16](results/routine/routine_full_v16_strict.mp4)
 
-![Earlier routine, one frame per stage](results/routine/routine_full_v15_splitover_strip.png)
+![Routine v16, sampled every two seconds](results/routine/routine_full_v16_strict_strip.png)
 
 All results are from simulation. The routine has not been tested on the physical robot.
 
@@ -76,7 +76,7 @@ The fold and kick-ups train separately. Recorded fold handovers give the kick-up
 | `microduck_rl/` | Training repository, included as a submodule. |
 | `tools/` | Evaluation scripts, regression tests, and an explicit factory-configuration training wrapper. |
 | `results/verified/` | Current seeded evaluation reports and logs. |
-| `results/routine/`, `results/policies/` | Historical videos and frame strips. |
+| `results/routine/`, `results/policies/` | Latest routine video, earlier recordings, and frame strips. |
 | `physics/` | Pose and contact experiments used during development. |
 | `anyscale/` | Historical training records and job submission tools. |
 
