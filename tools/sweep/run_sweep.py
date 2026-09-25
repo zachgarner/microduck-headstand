@@ -167,7 +167,8 @@ def write_batch(out_dir: Path, cfg, b, slots, offset, result, elapsed_s: float):
             f.write(json.dumps(rec) + "\n")
     np.savez_compressed(d / f"batch_{b:04d}.npz", **states)
     (d / f"batch_{b:04d}.json").write_text(json.dumps(
-        {"checkpoint_sha256": result[4], "elapsed_s": round(elapsed_s, 1)}) + "\n")
+        {"sweep": cfg["name"], "batch": b, "attempts": len(records),
+         "checkpoint_sha256": result[4], "elapsed_s": round(elapsed_s, 1)}) + "\n")
     return records
 
 
@@ -181,6 +182,7 @@ def merge(cfg, out_dir: Path, n_batches: int, workers: int, wall_s: float | None
     """Combine the batch files into records.jsonl, states.npz and provenance.json."""
     d = out_dir / "batches"
     records, states, hashes, sim_s = [], {}, {}, 0.0
+    expected = [slot for batch in batches_for(cfg)[1] for slot in batch]
     stage_names = None
     for b in range(n_batches):
         records += [json.loads(line) for line in (d / f"batch_{b:04d}.jsonl").read_text().splitlines()]
@@ -191,8 +193,15 @@ def merge(cfg, out_dir: Path, n_batches: int, workers: int, wall_s: float | None
                 else:
                     states.setdefault(key, []).append(z[key])
         meta = json.loads((d / f"batch_{b:04d}.json").read_text())
+        if meta.get("sweep") != cfg["name"] or meta.get("batch") != b:
+            raise ValueError(f"batch_{b:04d} belongs to sweep {meta.get('sweep')!r} batch {meta.get('batch')}, "
+                             f"not {cfg['name']!r} batch {b}")
         hashes.update(meta["checkpoint_sha256"])
         sim_s += meta["elapsed_s"]
+    got = [(r["point"], r["repeat"]) for r in records]
+    points = batches_for(cfg)[0]
+    if got != [(points[p_], a) for p_, a in expected]:
+        raise ValueError(f"{cfg['name']}: the records do not match the config's grid and attempts")
     with open(out_dir / "records.jsonl", "w") as f:
         for rec in records:
             f.write(json.dumps(rec) + "\n")

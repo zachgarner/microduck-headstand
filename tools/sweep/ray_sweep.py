@@ -25,6 +25,7 @@ import argparse
 import json
 import subprocess
 import sys
+import tempfile
 import time
 from pathlib import Path
 
@@ -47,11 +48,15 @@ flock $HOME/.microduck-setup.lock sh -c 'uv sync -q --frozen && uv run -q ../too
 
 @ray.remote(num_cpus=1)
 def run_batch_task(config_text: str, b: int) -> dict:
-    """Run batch b in the working directory Ray shipped, return its files."""
-    out = Path("microduck_rl") / "_ray_batch_out"
-    cfg_path = Path("microduck_rl") / f"_ray_config_{b}.json"
+    """Run batch b in the working directory Ray shipped, return its files.
+
+    Tasks on one node share that directory, so each task writes its config
+    and output under a directory of its own."""
+    work = Path(tempfile.mkdtemp(prefix="_ray_task_", dir="microduck_rl"))
+    cfg_path = work / "config.json"
     cfg_path.write_text(config_text)
-    cmd = SETUP + f"uv run -q ../tools/sweep/run_sweep.py {cfg_path.name} --batch {b} --out {out.name} --threads 1\n"
+    out = work / "out"
+    cmd = SETUP + f"uv run -q ../tools/sweep/run_sweep.py {cfg_path.resolve()} --batch {b} --out {out.resolve()} --threads 1\n"
     t0 = time.time()
     proc = subprocess.run(["bash", "-c", cmd], capture_output=True, text=True)
     if proc.returncode != 0:
@@ -117,6 +122,12 @@ def main():
             result = ray.get(ready[0])
         except Exception as e:   # one failed batch must not cancel the others
             print(f"  BATCH FAILED in {s_['cfg']['name']}: {str(e)[-2000:]}", flush=True)
+            failed.append(s_["cfg"]["name"])
+            continue
+        meta = json.loads(result["files"][f"batch_{result['b']:04d}.json"])
+        if meta.get("sweep") != s_["cfg"]["name"] or meta.get("batch") != result["b"]:
+            print(f"  BATCH FAILED in {s_['cfg']['name']}: files say sweep {meta.get('sweep')!r} "
+                  f"batch {meta.get('batch')}, expected batch {result['b']}", flush=True)
             failed.append(s_["cfg"]["name"])
             continue
         for name, data in result["files"].items():
