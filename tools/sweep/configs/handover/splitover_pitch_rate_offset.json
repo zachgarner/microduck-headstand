@@ -1,0 +1,34 @@
+{
+  "name": "handover_splitover_pitch_rate_offset",
+  "description": "Issue #15: the splitover stage started from the states the routine handed it in routine_v16_unpinned, with handover_pitch_rate_offset applied, 32 attempts per value. Each repeat uses the same source state at every value.",
+  "mode": "handover",
+  "routine": {
+    "fold": "vorty4kb:model_1000.pt",
+    "legs_together": "gx4v9lcz:model_1499.pt",
+    "roll": "ax1vgv8z:model_1999.pt",
+    "split": "y2fllvgj:model_1499.pt",
+    "switch": "whv1lcu7:model_500.pt",
+    "splitover": "2v46kg6g:model_1499.pt",
+    "stand": "policies/pollen/alpha_stand.onnx",
+    "hold_s": 2.0,
+    "switch_hold_s": 1.0,
+    "settle_s": 1.0,
+    "pike_settle_s": 0.0,
+    "seconds": 18.0
+  },
+  "source": "../results/sweeps/routine_v16_unpinned",
+  "stage": "splitover",
+  "stage_seconds": 4.0,
+  "axes": {
+    "handover_pitch_rate_offset": [
+      -3.0,
+      -1.5,
+      0.0,
+      1.5,
+      3.0
+    ]
+  },
+  "attempts": 32,
+  "seed": 300,
+  "max_envs": 32
+}
