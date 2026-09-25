@@ -18,6 +18,20 @@ The latest routine recording is **v16** below. It demonstrates one simulated att
 
 All results are from simulation. The routine has not been tested on the physical robot.
 
+## Robustness
+
+The 87/96 score draws each physics parameter at random from a narrow range. Pinning one parameter at a time across a grid shows where the routine breaks. We ran 14 parameters, 32 full-routine attempts per value, 3,296 attempts in all. Every other parameter kept its random draw.
+
+![Routine success by pinned parameter](results/sweeps/baseline_overview/overview.png)
+
+- **Command delay.** The policies trained with a servo command delay of 15 to 30 ms. They succeed about 90% at 20 to 25 ms, 0/32 with no delay, and 0/32 at 50 ms or more. The real robot's latency has to fall inside that band.
+- **Sideways trunk center of mass.** A 15 mm offset to one side drops the routine to 28% (75% to the other side), and most of those failures stop at the leg switch. The checkpoints probably trained with offsets of only ±5 to ±10 mm. The evaluation behind 87/96 drew offsets from ±3 mm.
+- **IMU misalignment.** Success falls to 75% at 6°, the training maximum, and 41% at 9°.
+- **Joint friction** above 1.3 times nominal degrades the back roll: 19% at twice nominal.
+- **Backlash** up to 4° of gear play makes no difference, though the policies never trained with it.
+
+Perturbing the state handed between policies shows that the second fold fails from a stand tilted back 10°, and the legs-together kick-up fails from a pike tilted forward 10° or more. The findings and their caveats are tracked in [zachgarner/microduck_rl#13](https://github.com/zachgarner/microduck_rl/issues/13), [#14](https://github.com/zachgarner/microduck_rl/issues/14) and [#15](https://github.com/zachgarner/microduck_rl/issues/15). Each sweep's map, records and provenance are in [`results/sweeps/`](results/sweeps/). The sweep harness and how to run it on Anyscale are in [`tools/sweep/`](tools/sweep/README.md).
+
 ## Run the evaluation
 
 Clone with submodules, then install the training environment:
@@ -75,6 +89,8 @@ The fold and kick-ups train separately. Recorded fold handovers give the kick-up
 | --- | --- |
 | `microduck_rl/` | Training repository, included as a submodule. |
 | `tools/` | Evaluation scripts, regression tests, and an explicit factory-configuration training wrapper. |
+| `tools/sweep/` | The parameter sweep harness, local or on a Ray cluster. |
+| `results/sweeps/` | Sweep maps, records, handover states and provenance. |
 | `results/verified/` | Current seeded evaluation reports and logs. |
 | `results/routine/`, `results/policies/` | Latest routine video, earlier recordings, and frame strips. |
 | `physics/` | Pose and contact experiments used during development. |

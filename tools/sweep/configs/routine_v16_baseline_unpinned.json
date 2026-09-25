@@ -1,0 +1,20 @@
+{
+  "name": "routine_v16_unpinned",
+  "description": "Issue #12 acceptance: the v16 routine with nothing pinned, 32 attempts at each of seeds 0, 1 and 2, to reproduce the verified 87/96.",
+  "mode": "routine",
+  "routine": {
+    "fold": "vorty4kb:model_1000.pt",
+    "legs_together": "gx4v9lcz:model_1499.pt",
+    "roll": "ax1vgv8z:model_1999.pt",
+    "split": "y2fllvgj:model_1499.pt",
+    "switch": "whv1lcu7:model_500.pt",
+    "splitover": "2v46kg6g:model_1499.pt",
+    "stand": "policies/pollen/alpha_stand.onnx",
+    "hold_s": 2.0, "switch_hold_s": 1.0, "settle_s": 1.0, "pike_settle_s": 0.0,
+    "seconds": 18.0
+  },
+  "axes": {},
+  "attempts": 96,
+  "seed": 0,
+  "max_envs": 32
+}

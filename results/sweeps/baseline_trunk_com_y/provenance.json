@@ -1,0 +1,255 @@
+{
+  "config": {
+    "name": "baseline_trunk_com_y",
+    "description": "Issue #13: the v16 routine with trunk_com_y pinned per environment, 32 attempts per value, every other parameter on its training draw.",
+    "mode": "routine",
+    "routine": {
+      "fold": "vorty4kb:model_1000.pt",
+      "legs_together": "gx4v9lcz:model_1499.pt",
+      "roll": "ax1vgv8z:model_1999.pt",
+      "split": "y2fllvgj:model_1499.pt",
+      "switch": "whv1lcu7:model_500.pt",
+      "splitover": "2v46kg6g:model_1499.pt",
+      "stand": "policies/pollen/alpha_stand.onnx",
+      "hold_s": 2.0,
+      "switch_hold_s": 1.0,
+      "settle_s": 1.0,
+      "pike_settle_s": 0.0,
+      "seconds": 18.0
+    },
+    "axes": {
+      "trunk_com_y": [
+        -0.03,
+        -0.02,
+        -0.015,
+        -0.008,
+        0.0,
+        0.008,
+        0.015,
+        0.02,
+        0.03
+      ]
+    },
+    "attempts": 32,
+    "seed": 100,
+    "max_envs": 32
+  },
+  "checkpoint_sha256": {
+    "Mjlab-HeadstandFold-Flat-MicroDuck": {
+      "spec": "vorty4kb:model_1000.pt",
+      "sha256": "82a97cbc871c718f82a467682c014555f64c78e9e9ce33438a2bc3a75636eec5"
+    },
+    "Mjlab-HeadstandKickupLegsTogether-Flat-MicroDuck": {
+      "spec": "gx4v9lcz:model_1499.pt",
+      "sha256": "c990ee6b12e0e15ec20863b78d52bd31ab6a1d05c26144446bd38ccef3ffddd5"
+    },
+    "Mjlab-HeadstandBackrollLegsTogether-Flat-MicroDuck": {
+      "spec": "ax1vgv8z:model_1999.pt",
+      "sha256": "e94cd3256060f09004a3b6210545fdfbe29b5e64084df697d37677e8ae19e8fd"
+    },
+    "Mjlab-HeadstandKickup-Flat-MicroDuck": {
+      "spec": "y2fllvgj:model_1499.pt",
+      "sha256": "66387c82f6f070f1d5990aeb811ae5fd7dbd9a2213f496bda2eb17070824a444"
+    },
+    "Mjlab-HeadstandSplitSwitch-Flat-MicroDuck": {
+      "spec": "whv1lcu7:model_500.pt",
+      "sha256": "974aafda6020f1f4fec0478bcad54db34930d96612bb956c6ff2f7107f3b2561"
+    },
+    "Mjlab-HeadstandSplitOver-Flat-MicroDuck": {
+      "spec": "2v46kg6g:model_1499.pt",
+      "sha256": "de673ec96b101379b67c347af68b85e9538e392b5fe4fe21e187af95695dbdc9"
+    }
+  },
+  "tool_sha256": {
+    "axes.py": "60a2cf978ac4b66108a67361a9d523c81beb87e14758304b16ac7d783237ec9b",
+    "check_axes.py": "e67aed77671c812f7eea2ce7f70a560934b25a4b1dc17ee765edeadebaf2d4f2",
+    "overview.py": "5f6c295bcfa3dc0e0fe46cdc9e98563f2c694bc93e379b1f4a1ac7d2a8bcb6d0",
+    "plan.py": "03717923fdf9866717bfa7b00639f59bba79085064bdcf2a8afdad8074f097b8",
+    "ray_sweep.py": "bdd99e2521d00b828b5c1a5324e9504ad14c9599a56a4b541b1d14ba696e375e",
+    "report.py": "ebc9430f9e36497ba227b2f46be36d266e21d31ceb50f2f2fc6eab3e8451cd9a",
+    "rollout.py": "0fa3e48ca89937e36abf349ec00cd2353f20b19bb2b34a0f89fa7ef1c497c8b2",
+    "run_sweep.py": "639fe6e610e67bf258561a5932df2f9e26cbfacd1e7c75e0b733ae5fd70d7878"
+  },
+  "evaluator_sha256": {
+    "routine_full.py": "6fc2ef34ea23d6ffca963ebb088b51362a60c432e86b2dbc2395d595f81a7074",
+    "eval_checkpoint.py": "bb12b02d3a1562b350a008bf6436a3adc4be1f187f8dbaae44efc9b24a60a893"
+  },
+  "training_revision": "29ed59c08d1253b6e898330acbb105b8eab0cabc",
+  "training_dirty": false,
+  "tools_revision": "c7260ee1146178c18837ede614722c8035172cd4",
+  "tools_dirty": false,
+  "versions": {
+    "mjlab": "1.3.0",
+    "mujoco": "3.10.0",
+    "torch": "2.9.1",
+    "warp-lang": "1.12.0"
+  },
+  "axes": {
+    "friction_scale": {
+      "unit": "x nominal",
+      "nominal": 1.0,
+      "training_range": [
+        0.9,
+        1.1
+      ],
+      "note": "Scales the BAM actuator's friction budget: Coulomb, Stribeck and load-dependent."
+    },
+    "battery_voltage": {
+      "unit": "V",
+      "nominal": 7.4,
+      "training_range": [
+        6.5,
+        8.2
+      ],
+      "note": "Above 8.2 V the MuJoCo force range, set from the top of the training range, clips the torque."
+    },
+    "voltage_drop_gain": {
+      "unit": "V/Nm",
+      "nominal": 0.1,
+      "training_range": [
+        0.0,
+        0.2
+      ],
+      "note": "Voltage sag per newton-metre of total servo torque."
+    },
+    "command_delay": {
+      "unit": "physics steps (5 ms)",
+      "nominal": 4.5,
+      "training_range": [
+        3,
+        6
+      ],
+      "note": "Training resamples the lag every physics step. A pinned lag is constant."
+    },
+    "trunk_com_x": {
+      "unit": "m",
+      "nominal": 0.0,
+      "training_range": [
+        -0.015,
+        0.015
+      ],
+      "note": ""
+    },
+    "trunk_com_y": {
+      "unit": "m",
+      "nominal": 0.0,
+      "training_range": [
+        -0.015,
+        0.015
+      ],
+      "note": ""
+    },
+    "trunk_com_z": {
+      "unit": "m",
+      "nominal": 0.0,
+      "training_range": [
+        -0.015,
+        0.015
+      ],
+      "note": ""
+    },
+    "head_com_x": {
+      "unit": "m",
+      "nominal": 0.0,
+      "training_range": [
+        -0.01,
+        0.01
+      ],
+      "note": ""
+    },
+    "head_com_z": {
+      "unit": "m",
+      "nominal": 0.0,
+      "training_range": [
+        -0.01,
+        0.01
+      ],
+      "note": ""
+    },
+    "trunk_mass_scale": {
+      "unit": "x nominal",
+      "nominal": 1.0,
+      "training_range": [
+        0.95,
+        1.05
+      ],
+      "note": "Scales the trunk's mass and inertia together."
+    },
+    "armature_scale": {
+      "unit": "x nominal",
+      "nominal": 1.0,
+      "training_range": [
+        0.9,
+        1.1
+      ],
+      "note": ""
+    },
+    "encoder_bias": {
+      "unit": "rad",
+      "nominal": 0.0,
+      "training_range": [
+        0.0,
+        0.015
+      ],
+      "note": "Each joint's bias is drawn from plus or minus this value. Readback is the largest joint bias."
+    },
+    "imu_misalignment": {
+      "unit": "deg",
+      "nominal": 0.0,
+      "training_range": [
+        0.0,
+        6.0
+      ],
+      "note": "A fixed mounting error of this angle about a random axis."
+    },
+    "contact_friction_scale": {
+      "unit": "x nominal",
+      "nominal": 1.0,
+      "training_range": [
+        1.0,
+        1.0
+      ],
+      "note": "Training never randomizes contact friction."
+    },
+    "backlash_deg": {
+      "unit": "deg total",
+      "nominal": 0.0,
+      "training_range": [
+        0.0,
+        0.0
+      ],
+      "note": "Needs the backlash robot model. The headstand policies trained without backlash; the -Backlash- tasks use 2 degrees."
+    },
+    "handover_pitch_offset": {
+      "unit": "deg",
+      "nominal": 0.0,
+      "training_range": [
+        0.0,
+        0.0
+      ],
+      "note": "Rotate the trunk by `value` degrees about its own pitch axis."
+    },
+    "handover_pitch_rate_offset": {
+      "unit": "rad/s",
+      "nominal": 0.0,
+      "training_range": [
+        0.0,
+        0.0
+      ],
+      "note": "Add `value` rad/s to the trunk's pitch rate. MuJoCo's free-joint angular     velocity is in the body frame, so index 4 is the pitch axis."
+    },
+    "handover_joint_noise": {
+      "unit": "rad",
+      "nominal": 0.0,
+      "training_range": [
+        0.0,
+        0.0
+      ],
+      "note": "Add Gaussian noise with standard deviation `value` rad to every servo     position. Plain-model layout: the 14 servos follow the 7 base values."
+    }
+  },
+  "elapsed_s": 5144.4,
+  "wall_s": 809.1,
+  "workers": 9,
+  "standing_onnx_sha256": "1569268713e40deea795dd2922dba50d3621e15a872855408b6b1b125b1c094b"
+}
