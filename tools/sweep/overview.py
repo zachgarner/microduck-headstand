@@ -63,12 +63,14 @@ def main():
                 markeredgecolor=SURFACE, markeredgewidth=1.2, zorder=3)
         ax.set_ylim(-0.02, 1.02)
         ax.yaxis.set_major_formatter(matplotlib.ticker.PercentFormatter(1.0, decimals=0))
-        ax.set_title(axis, loc="left", fontsize=9, color=INK)
+        label = prov["config"].get("stage", axis) if prov["config"]["mode"] == "handover" else axis
+        ax.set_title(label, loc="left", fontsize=9, color=INK)
         ax.set_xlabel(meta["unit"], fontsize=7, color=INK_2)
         lo_edge, hi_edge = edges(xs, rate, meta["nominal"], args.threshold)
         inside = [r for x, r in zip(xs, rate) if t_lo <= x <= t_hi]
-        fails = Counter(r.get("first_unfinished_stage") or "fell after finishing" for r in records if not r["success"])
-        table.append((axis, meta, lo_edge, hi_edge, min(inside) if inside else None,
+        fails = (Counter(r["first_unfinished_stage"] or "fell after finishing" for r in records if not r["success"])
+                 if prov["config"]["mode"] == "routine" else Counter())
+        table.append((label, meta, lo_edge, hi_edge, min(inside) if inside else None,
                       sum(k), sum(n), fails.most_common(3)))
     for j in range(len(sweeps), rows * cols):
         grid[j // cols][j % cols].axis("off")
