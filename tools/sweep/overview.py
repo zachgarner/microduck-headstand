@@ -3,10 +3,12 @@
     cd microduck_rl
     uv run --with matplotlib ../tools/sweep/overview.py ../results/sweeps/baseline_* --out ../results/sweeps/baseline_overview
 
-Writes `overview.png` and `overview.md` to the output directory. The failure
-edge on each side of the nominal value is the first grid value, moving outward,
-whose success rate falls below `--threshold` (90% by default). The table also
-reports each axis's worst success rate inside its training range.
+Writes `overview.png` and `overview.md` to the output directory. A grid value
+is significantly worse than the baseline when the upper end of its 95% Wilson
+interval falls below the baseline's success rate. `--baseline` names the
+reference sweep (the unpinned routine by default). The failure edge on each
+side of the nominal value is the first such value moving outward. The table
+also reports each axis's worst success rate inside its training range.
 """
 from __future__ import annotations
 
@@ -22,9 +24,9 @@ import matplotlib.pyplot as plt  # noqa: E402
 from report import BAND, GRID, INK, INK_2, SERIES, SURFACE, by_value, fmt, load, style, wilson  # noqa: E402
 
 
-def edges(xs, rate, nominal, threshold):
-    below = [x for x, r in zip(xs, rate) if x < nominal and r < threshold]
-    above = [x for x, r in zip(xs, rate) if x > nominal and r < threshold]
+def edges(xs, upper, nominal, baseline):
+    below = [x for x, u in zip(xs, upper) if x < nominal and u < baseline]
+    above = [x for x, u in zip(xs, upper) if x > nominal and u < baseline]
     return (max(below) if below else None, min(above) if above else None)
 
 
@@ -32,10 +34,14 @@ def main():
     p = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     p.add_argument("sweeps", type=Path, nargs="+")
     p.add_argument("--out", type=Path, required=True)
-    p.add_argument("--threshold", type=float, default=0.9)
+    p.add_argument("--baseline", type=Path, help="reference sweep; its overall success rate is the bar")
     p.add_argument("--title", default="Routine success by pinned parameter")
     args = p.parse_args()
     args.out.mkdir(parents=True, exist_ok=True)
+    base_records, _ = load(args.baseline) if args.baseline else (None, None)
+    bar = (sum(r["success"] for r in base_records) / len(base_records)) if base_records else 0.9
+    bar_text = (f"{sum(r['success'] for r in base_records)}/{len(base_records)} ({100 * bar:.0f}%), "
+                f"the success rate of `{args.baseline.name}`" if base_records else "90%")
     sweeps = [s for s in sorted(args.sweeps) if (s / "records.jsonl").exists()]
     cols = 4
     rows = math.ceil(len(sweeps) / cols)
@@ -56,7 +62,7 @@ def main():
         style(ax)
         if t_hi > t_lo:
             ax.axvspan(t_lo, t_hi, color=BAND, zorder=0)
-        ax.axhline(args.threshold, color=GRID, linewidth=0.8, zorder=1)
+        ax.axhline(bar, color=GRID, linewidth=0.8, zorder=1)
         ax.axvline(meta["nominal"], color=INK_2, linewidth=0.8, linestyle=(0, (3, 3)), zorder=1)
         ax.fill_between(xs, [a for a, _ in ci], [b for _, b in ci], color=SERIES[0], alpha=0.15, linewidth=0, zorder=2)
         ax.plot(xs, rate, color=SERIES[0], linewidth=2, marker="o", markersize=4,
@@ -66,7 +72,7 @@ def main():
         label = prov["config"].get("stage", axis) if prov["config"]["mode"] == "handover" else axis
         ax.set_title(label, loc="left", fontsize=9, color=INK)
         ax.set_xlabel(meta["unit"], fontsize=7, color=INK_2)
-        lo_edge, hi_edge = edges(xs, rate, meta["nominal"], args.threshold)
+        lo_edge, hi_edge = edges(xs, [b for _, b in ci], meta["nominal"], bar)
         inside = [r for x, r in zip(xs, rate) if t_lo <= x <= t_hi]
         fails = (Counter(r["first_unfinished_stage"] or "fell after finishing" for r in records if not r["success"])
                  if prov["config"]["mode"] == "routine" else Counter())
@@ -80,11 +86,11 @@ def main():
 
     pct = lambda v: "none in range" if v is None else f"{100 * v:.0f}%"  # noqa: E731
     lines = [f"# {args.title}", "",
-             f"Each panel pins one parameter and runs the routine at every grid value. The shaded band is the training range, "
-             f"the dashed line the nominal value, and the grey line the {100 * args.threshold:.0f}% threshold.", "",
+             "Each panel pins one parameter and runs every grid value. The shaded band is the training range, "
+             f"the dashed line the nominal value, and the grey line the baseline, {bar_text}.", "",
              "![overview](overview.png)", "",
-             f"The failure edge is the first value, moving outward from nominal, where success falls below "
-             f"{100 * args.threshold:.0f}%.", "",
+             "The failure edge is the first value, moving outward from nominal, whose 95% interval lies entirely "
+             "below the baseline.", "",
              "| Axis | Training range | Lower failure edge | Upper failure edge | Worst success inside the training range | All attempts | Most common first unfinished stages |",
              "| --- | --- | --- | --- | ---: | ---: | --- |"]
     for axis, meta, lo_e, hi_e, worst_in, k, n, fails in table:
