@@ -170,10 +170,12 @@ def main():
                 f"{sum(cells[(av, bv)])}/{len(cells[(av, bv)])}" for bv in bs) + " |")
         lines.append("")
 
-    held = all(abs(r["params_start"][ax_] - r["params_end"][ax_]) < 1e-6 for r in records for ax_ in axes)
+    physical = [a for a in axes if a in records[0]["params_start"]]   # state axes have no readback
+    held = all(abs(r["params_start"][ax_] - r["params_end"][ax_]) < 1e-6 for r in records for ax_ in physical)
     chart = "Chart: [map.png](map.png). " if axes else ""
     lines += ["## Checks", "",
-              f"Pinned values held for the whole rollout in every attempt: {'yes' if held else 'NO'}.",
+              (f"Pinned values held for the whole rollout in every attempt: {'yes' if held else 'NO'}."
+               if physical else "The swept axes perturb start states, so there is no readback to check."),
               f"Resets inside a rollout: {max(r['resets_in_batch'] for r in records)}.", "",
               f"{chart}Records: `records.jsonl`. States: `states.npz`. "
               f"Provenance: `provenance.json`, {prov['elapsed_s']:.0f} s of simulation.", ""]
