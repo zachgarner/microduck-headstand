@@ -11,6 +11,11 @@ sharing a node wait for one another. The batch files come back to the driver,
 and `run_sweep.py --merge` combines them in each sweep's output directory.
 Several configs queue together, so one call can run a whole family of sweeps.
 
+A batch whose files are already in the output directory is not run again, so
+rerunning the same command resumes an interrupted sweep. The driver prepares
+the head node's training environment first, since the merges run there, and
+a failed merge is reported without stopping the other sweeps.
+
 Warp's CPU backend is the verified evaluators' backend, so results stay
 comparable with `results/verified/`.
 """
@@ -58,6 +63,18 @@ def run_batch_task(config_text: str, b: int) -> dict:
     }
 
 
+def merge(s_) -> bool:
+    proc = subprocess.run(["bash", "-c", "export UV_PROJECT_ENVIRONMENT=$HOME/.microduck-venv; "
+                           f"uv run -q ../tools/sweep/run_sweep.py {s_['path']} --merge --out {s_['out']} "
+                           f"--workers-recorded {s_['n']} --wall-s {time.time() - s_['t0']:.1f}"],
+                          cwd=REPO / "microduck_rl", capture_output=True, text=True)
+    if proc.returncode != 0:
+        print(f"  MERGE FAILED for {s_['cfg']['name']}:\n{proc.stderr[-2000:]}", flush=True)
+        return False
+    print(f"  merged {s_['cfg']['name']}: {proc.stdout.strip().splitlines()[-1]}", flush=True)
+    return True
+
+
 def main():
     p = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     p.add_argument("configs", type=Path, nargs="+")
@@ -69,27 +86,39 @@ def main():
         cfg = json.loads(path.read_text())
         out_dir = (args.out_root / cfg["name"]).resolve()
         (out_dir / "batches").mkdir(parents=True, exist_ok=True)
+        n = len(batches_for(cfg)[1])
+        todo = [b for b in range(n) if not (out_dir / "batches" / f"batch_{b:04d}.json").exists()]
         sweeps.append({"path": path.resolve(), "cfg": cfg, "text": path.read_text(), "out": out_dir,
-                       "n": len(batches_for(cfg)[1]), "left": len(batches_for(cfg)[1]), "t0": time.time()})
+                       "n": n, "todo": todo, "left": len(todo), "t0": time.time()})
+    subprocess.run(["bash", "-c", SETUP], cwd=REPO, check=True)
     ray.init(runtime_env={
         "working_dir": str(REPO),
         "excludes": [".git", "**/.venv", "results/policies", "results/routine", "results/strips",
                      "**/logs/rsl_rl", "**/wandb", "**/*.mp4", "**/_ray_*", "results/sweeps/*/batches"],
     })
-    total = sum(s_["n"] for s_ in sweeps)
-    print(f"{len(sweeps)} sweep(s), {total} batches, {ray.cluster_resources().get('CPU', 0):.0f} CPUs now; "
-          "the autoscaler adds nodes as tasks queue", flush=True)
+    total = sum(s_["left"] for s_ in sweeps)
+    print(f"{len(sweeps)} sweep(s), {total} batches to run "
+          f"({sum(s_['n'] for s_ in sweeps) - total} already done), "
+          f"{ray.cluster_resources().get('CPU', 0):.0f} CPUs now; the autoscaler adds nodes as tasks queue", flush=True)
     t0 = time.time()
     pending = {}
+    failed = []
     for i, s_ in enumerate(sweeps):
-        for b in range(s_["n"]):
+        for b in s_["todo"]:
             pending[run_batch_task.remote(s_["text"], b)] = i
+        if not s_["todo"] and not merge(s_):
+            failed.append(s_["cfg"]["name"])
     nodes, done = set(), 0
     while pending:
         ready, _ = ray.wait(list(pending), num_returns=1)
         i = pending.pop(ready[0])
         s_ = sweeps[i]
-        result = ray.get(ready[0])
+        try:
+            result = ray.get(ready[0])
+        except Exception as e:   # one failed batch must not cancel the others
+            print(f"  BATCH FAILED in {s_['cfg']['name']}: {str(e)[-2000:]}", flush=True)
+            failed.append(s_["cfg"]["name"])
+            continue
         for name, data in result["files"].items():
             (s_["out"] / "batches" / name).write_bytes(data)
         nodes.add(result["node"])
@@ -97,12 +126,11 @@ def main():
         s_["left"] -= 1
         print(f"  {s_['cfg']['name']} batch {result['b']} in {result['seconds']:.0f} s on {result['node']} "
               f"({done}/{total}, {time.time() - t0:.0f} s)", flush=True)
-        if s_["left"] == 0:
-            subprocess.run(["bash", "-c", "export UV_PROJECT_ENVIRONMENT=$HOME/.microduck-venv; "
-                            f"uv run -q ../tools/sweep/run_sweep.py {s_['path']} --merge --out {s_['out']} "
-                            f"--workers-recorded {s_['n']} --wall-s {time.time() - s_['t0']:.1f}"],
-                           check=True, cwd=REPO / "microduck_rl")
+        if s_["left"] == 0 and not merge(s_):
+            failed.append(s_["cfg"]["name"])
     print(f"{total} batches on {len(nodes)} node(s) in {time.time() - t0:.0f} s")
+    if failed:
+        sys.exit(f"incomplete sweeps (rerun the same command to resume): {', '.join(sorted(set(failed)))}")
 
 
 if __name__ == "__main__":
