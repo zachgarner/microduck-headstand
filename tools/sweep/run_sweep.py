@@ -198,9 +198,8 @@ def merge(cfg, out_dir: Path, n_batches: int, workers: int, wall_s: float | None
                              f"not {cfg['name']!r} batch {b}")
         hashes.update(meta["checkpoint_sha256"])
         sim_s += meta["elapsed_s"]
-    got = [(r["point"], r["repeat"]) for r in records]
-    points = batches_for(cfg)[0]
-    if got != [(points[p_], a) for p_, a in expected]:
+    got = [(r["point"], r["repeat"]) for r in records]   # point is the grid point's index
+    if got != expected:
         raise ValueError(f"{cfg['name']}: the records do not match the config's grid and attempts")
     with open(out_dir / "records.jsonl", "w") as f:
         for rec in records:
