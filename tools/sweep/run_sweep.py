@@ -55,7 +55,9 @@ def revision(directory: Path) -> str:
 
 
 def dirty(directory: Path) -> bool:
-    return bool(subprocess.check_output(["git", "status", "--porcelain"], cwd=directory, text=True).strip())
+    """Whether tracked files differ from the revision. New result files do not count."""
+    return bool(subprocess.check_output(["git", "status", "--porcelain", "--untracked-files=no"],
+                                        cwd=directory, text=True).strip())
 
 
 def names_of_state_axes(cfg):
