@@ -13,21 +13,21 @@ import pytest
 sys.path.insert(0, str(Path(__file__).parent / "sweep"))
 import report  # noqa: E402
 import rollout  # noqa: E402
-import run_sweep  # noqa: E402
+import plan  # noqa: E402
 
 
 def test_grid_is_the_full_product_in_axis_order():
-    points = run_sweep.grid_points({"a": [1, 2], "b": [10, 20, 30]})
+    points = plan.grid_points({"a": [1, 2], "b": [10, 20, 30]})
     assert len(points) == 6
     assert points[0] == {"a": 1, "b": 10} and points[-1] == {"a": 2, "b": 30}
 
 
 def test_no_axes_is_one_point():
-    assert run_sweep.grid_points({}) == [{}]
+    assert plan.grid_points({}) == [{}]
 
 
 def test_layout_keeps_grid_points_contiguous_and_caps_batches():
-    batches = run_sweep.layout([{"a": 1}, {"a": 2}, {"a": 3}], attempts=4, max_envs=5)
+    batches = plan.layout([{"a": 1}, {"a": 2}, {"a": 3}], attempts=4, max_envs=5)
     assert [len(b) for b in batches] == [5, 5, 2]
     flat = [slot for b in batches for slot in b]
     assert flat == [(p, a) for p in range(3) for a in range(4)]
@@ -35,7 +35,7 @@ def test_layout_keeps_grid_points_contiguous_and_caps_batches():
 
 def test_unpinned_routine_layout_matches_the_verified_seeds():
     # 96 attempts in batches of 32 run at seeds 0, 1 and 2, the evaluation's seeds.
-    batches = run_sweep.layout([{}], attempts=96, max_envs=32)
+    batches = plan.layout([{}], attempts=96, max_envs=32)
     assert len(batches) == 3 and all(len(b) == 32 for b in batches)
 
 

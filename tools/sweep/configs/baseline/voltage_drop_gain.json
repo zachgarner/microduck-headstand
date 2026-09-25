@@ -1,0 +1,32 @@
+{
+  "name": "baseline_voltage_drop_gain",
+  "description": "Issue #13: the v16 routine with voltage_drop_gain pinned per environment, 32 attempts per value, every other parameter on its training draw.",
+  "mode": "routine",
+  "routine": {
+    "fold": "vorty4kb:model_1000.pt",
+    "legs_together": "gx4v9lcz:model_1499.pt",
+    "roll": "ax1vgv8z:model_1999.pt",
+    "split": "y2fllvgj:model_1499.pt",
+    "switch": "whv1lcu7:model_500.pt",
+    "splitover": "2v46kg6g:model_1499.pt",
+    "stand": "policies/pollen/alpha_stand.onnx",
+    "hold_s": 2.0,
+    "switch_hold_s": 1.0,
+    "settle_s": 1.0,
+    "pike_settle_s": 0.0,
+    "seconds": 18.0
+  },
+  "axes": {
+    "voltage_drop_gain": [
+      0.0,
+      0.1,
+      0.2,
+      0.3,
+      0.4,
+      0.6
+    ]
+  },
+  "attempts": 32,
+  "seed": 100,
+  "max_envs": 32
+}

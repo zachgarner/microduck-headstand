@@ -13,6 +13,10 @@ laid out point after point, and environments are split into batches of at most
 parallel processes. Warp's CPU backend steps a batch on one core, so on a CPU
 machine the throughput comes from running batches side by side.
 
+Every batch writes its own files under `batches/`, and a merge combines them.
+`--batch B` runs one batch and `--merge` only merges, which is how
+`ray_sweep.py` spreads batches over a Ray cluster.
+
 The output directory holds:
 
 - `records.jsonl`: one line per attempt, with the pinned values, the readback
@@ -26,7 +30,6 @@ from __future__ import annotations
 
 import argparse
 import importlib.metadata
-import itertools
 import json
 import subprocess
 import sys
@@ -41,20 +44,10 @@ import torch
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 import axes as sweep_axes  # noqa: E402
 import rollout  # noqa: E402
+from plan import batches_for  # noqa: E402
 
 SWEEP_DIR = Path(__file__).resolve().parent
 RESULTS = SWEEP_DIR.parent.parent / "results" / "sweeps"
-
-
-def grid_points(axes: dict[str, list[float]]) -> list[dict[str, float]]:
-    names = list(axes)
-    return [dict(zip(names, values)) for values in itertools.product(*(axes[n] for n in names))]
-
-
-def layout(points, attempts: int, max_envs: int):
-    """Assign attempts to (batch, env) slots, grid point after grid point."""
-    slots = [(p, a) for p in range(len(points)) for a in range(attempts)]
-    return [slots[i:i + max_envs] for i in range(0, len(slots), max_envs)]
 
 
 def revision(directory: Path) -> str:
@@ -124,79 +117,87 @@ def run_batch(cfg: dict, slots, points, seed: int, threads: int = 1):
     return assignments, before, after, out, rollout.checkpoint_hashes()
 
 
-def main():
-    p = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
-    p.add_argument("config", type=Path)
-    p.add_argument("--out", type=Path, help="output directory; defaults to results/sweeps/<name>")
-    p.add_argument("--workers", type=int, default=1, help="batches run in parallel processes")
-    p.add_argument("--threads", type=int, default=2, help="torch threads per worker")
-    args = p.parse_args()
-    cfg = json.loads(args.config.read_text())
-    known = {**sweep_axes.AXES, **rollout.STATE_AXES}
-    for name in cfg["axes"]:
-        if name not in known:
-            p.error(f"unknown axis {name!r}; known: {', '.join(known)}")
-        if name in rollout.STATE_AXES and cfg["mode"] != "handover":
-            p.error(f"{name} perturbs handover states and needs mode \"handover\"")
-    out_dir = args.out or RESULTS / cfg["name"]
-    out_dir.mkdir(parents=True, exist_ok=True)
-    points = grid_points(cfg["axes"])
-    batches = layout(points, cfg["attempts"], cfg.get("max_envs", 256))
-    print(f"{cfg['name']}: {len(points)} grid points x {cfg['attempts']} attempts = "
-          f"{len(points) * cfg['attempts']} attempts in {len(batches)} batch(es)", flush=True)
+def batch_records(cfg, b, slots, offset, result):
+    """One record per attempt of batch b, and its states keyed by array name."""
+    assignments, before, after, out, _ = result
+    seed = cfg["seed"] + b
+    records, states = [], {}
+    for i, (point, rep) in enumerate(slots):
+        rec = {
+            "attempt": offset + i, "batch": b, "env": i, "seed": seed,
+            "point": point, "repeat": rep,
+            "pinned": {n: float(assignments[n][i]) for n in cfg["axes"]},
+            "params_start": {n: float(v[i]) for n, v in before.items()},
+            "params_end": {n: float(v[i]) for n, v in after.items()},
+            "success": bool(out["success"][i]),
+            "resets_in_batch": out["resets"],
+        }
+        if cfg["mode"] == "policy":
+            rec["first_goal_s"] = float(out["first_goal_s"][i])
+        elif cfg["mode"] == "handover":
+            rec["stage"] = cfg["stage"]
+            rec["done_s"] = float(out["done_s"][i])
+            rec["source_attempt"] = int(out["source_attempt"][i])
+        else:
+            names = out["stage_names"]
+            k = int(out["stage"][i])
+            rec.update({
+                "completed_stages": k,
+                "first_unfinished_stage": names[k] if k < len(names) else None,
+                "final_standing": bool(out["final_standing"][i]),
+                "stage_times_s": [float(t) for t in out["stage_times_s"][i]],
+            })
+        records.append(rec)
+    for key in ("final_qpos", "final_qvel", "handover_qpos", "handover_qvel"):
+        if key in out:
+            states[key] = out[key]
+    if "stage_names" in out:
+        states["stage_names"] = np.array(out["stage_names"])
+    return records, states
 
-    records, states, hashes = [], {}, {}
+
+def write_batch(out_dir: Path, cfg, b, slots, offset, result, elapsed_s: float):
+    records, states = batch_records(cfg, b, slots, offset, result)
+    d = out_dir / "batches"
+    d.mkdir(parents=True, exist_ok=True)
+    with open(d / f"batch_{b:04d}.jsonl", "w") as f:
+        for rec in records:
+            f.write(json.dumps(rec) + "\n")
+    np.savez_compressed(d / f"batch_{b:04d}.npz", **states)
+    (d / f"batch_{b:04d}.json").write_text(json.dumps(
+        {"checkpoint_sha256": result[4], "elapsed_s": round(elapsed_s, 1)}) + "\n")
+    return records
+
+
+def run_one(cfg, b, slots, points, offset, threads, out_dir):
     t0 = time.time()
-    jobs = [(cfg, slots, points, cfg["seed"] + b, args.threads) for b, slots in enumerate(batches)]
-    if args.workers > 1:
-        pool = ProcessPoolExecutor(max_workers=args.workers, mp_context=multiprocessing.get_context("spawn"))
-        futures = [pool.submit(run_batch, *job) for job in jobs]
-        results = (f.result() for f in futures)   # in batch order, so records stay ordered
-    else:
-        results = (run_batch(*job) for job in jobs)
-    attempt = 0
-    for b, (slots, (assignments, before, after, out, batch_hashes)) in enumerate(zip(batches, results)):
-        seed = cfg["seed"] + b
-        hashes.update(batch_hashes)
-        for i, (point, rep) in enumerate(slots):
-            rec = {
-                "attempt": attempt, "batch": b, "env": i, "seed": seed,
-                "point": point, "repeat": rep,
-                "pinned": {n: float(assignments[n][i]) for n in cfg["axes"]},
-                "params_start": {n: float(v[i]) for n, v in before.items()},
-                "params_end": {n: float(v[i]) for n, v in after.items()},
-                "success": bool(out["success"][i]),
-                "resets_in_batch": out["resets"],
-            }
-            if cfg["mode"] == "policy":
-                rec["first_goal_s"] = float(out["first_goal_s"][i])
-            elif cfg["mode"] == "handover":
-                rec["stage"] = cfg["stage"]
-                rec["done_s"] = float(out["done_s"][i])
-                rec["source_attempt"] = int(out["source_attempt"][i])
-            else:
-                names = out["stage_names"]
-                k = int(out["stage"][i])
-                rec.update({
-                    "completed_stages": k,
-                    "first_unfinished_stage": names[k] if k < len(names) else None,
-                    "final_standing": bool(out["final_standing"][i]),
-                    "stage_times_s": [float(t) for t in out["stage_times_s"][i]],
-                })
-            records.append(rec)
-            for key in ("final_qpos", "final_qvel", "handover_qpos", "handover_qvel"):
-                if key in out:
-                    states.setdefault(key, []).append(out[key][i])
-            attempt += 1
-        done = sum(r["success"] for r in records)
-        print(f"  batch {b + 1}/{len(batches)} at seed {seed}: {done}/{len(records)} successes so far, "
-              f"{time.time() - t0:.0f} s", flush=True)
+    result = run_batch(cfg, slots, points, cfg["seed"] + b, threads)
+    return write_batch(out_dir, cfg, b, slots, offset, result, time.time() - t0)
 
+
+def merge(cfg, out_dir: Path, n_batches: int, workers: int, wall_s: float | None = None):
+    """Combine the batch files into records.jsonl, states.npz and provenance.json."""
+    d = out_dir / "batches"
+    records, states, hashes, sim_s = [], {}, {}, 0.0
+    stage_names = None
+    for b in range(n_batches):
+        records += [json.loads(line) for line in (d / f"batch_{b:04d}.jsonl").read_text().splitlines()]
+        with np.load(d / f"batch_{b:04d}.npz") as z:
+            for key in z.files:
+                if key == "stage_names":
+                    stage_names = z[key]
+                else:
+                    states.setdefault(key, []).append(z[key])
+        meta = json.loads((d / f"batch_{b:04d}.json").read_text())
+        hashes.update(meta["checkpoint_sha256"])
+        sim_s += meta["elapsed_s"]
     with open(out_dir / "records.jsonl", "w") as f:
         for rec in records:
             f.write(json.dumps(rec) + "\n")
-    np.savez_compressed(out_dir / "states.npz", **{k: np.stack(v) for k, v in states.items()},
-                        stage_names=np.array(out.get("stage_names", [])))
+    arrays = {k: np.concatenate(v) for k, v in states.items()}
+    if stage_names is not None:
+        arrays["stage_names"] = stage_names
+    np.savez_compressed(out_dir / "states.npz", **arrays)
     training_root = Path.cwd()
     provenance = {
         "config": cfg,
@@ -212,13 +213,63 @@ def main():
                  **{n: {"unit": unit, "nominal": 0.0, "training_range": [0.0, 0.0],
                         "note": (fn.__doc__ or "").strip().replace("\n", " ")}
                     for n, (unit, fn) in rollout.STATE_AXES.items()}},
-        "elapsed_s": round(time.time() - t0, 1),
-        "workers": args.workers,
+        "elapsed_s": round(sim_s, 1),
+        "wall_s": None if wall_s is None else round(wall_s, 1),
+        "workers": workers,
     }
-    if cfg["mode"] == "routine":
+    if cfg["mode"] in ("routine", "handover"):
         provenance["standing_onnx_sha256"] = rollout.sha256(cfg["routine"]["stand"])
     (out_dir / "provenance.json").write_text(json.dumps(provenance, indent=2) + "\n")
-    print(f"wrote {len(records)} records to {out_dir}")
+    print(f"wrote {len(records)} records to {out_dir}, {sum(r['success'] for r in records)} successes")
+
+
+def main():
+    p = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
+    p.add_argument("config", type=Path)
+    p.add_argument("--out", type=Path, help="output directory; defaults to results/sweeps/<name>")
+    p.add_argument("--workers", type=int, default=1, help="batches run in parallel processes")
+    p.add_argument("--threads", type=int, default=2, help="torch threads per worker")
+    p.add_argument("--batch", type=int, help="run only this batch and write its files")
+    p.add_argument("--merge", action="store_true", help="only merge existing batch files")
+    p.add_argument("--workers-recorded", type=int, help="worker count to record when merging a Ray run")
+    p.add_argument("--wall-s", type=float, help="wall time to record when merging a Ray run")
+    args = p.parse_args()
+    cfg = json.loads(args.config.read_text())
+    known = {**sweep_axes.AXES, **rollout.STATE_AXES}
+    for name in cfg["axes"]:
+        if name not in known:
+            p.error(f"unknown axis {name!r}; known: {', '.join(known)}")
+        if name in rollout.STATE_AXES and cfg["mode"] != "handover":
+            p.error(f"{name} perturbs handover states and needs mode \"handover\"")
+    out_dir = args.out or RESULTS / cfg["name"]
+    out_dir.mkdir(parents=True, exist_ok=True)
+    points, batches = batches_for(cfg)
+    offsets = [sum(len(x) for x in batches[:b]) for b in range(len(batches))]
+    if args.merge:
+        merge(cfg, out_dir, len(batches), args.workers_recorded or args.workers, args.wall_s)
+        return
+    if args.batch is not None:
+        b = args.batch
+        records = run_one(cfg, b, batches[b], points, offsets[b], args.threads, out_dir)
+        print(f"batch {b}: {sum(r['success'] for r in records)}/{len(records)} successes", flush=True)
+        return
+    print(f"{cfg['name']}: {len(points)} grid points x {cfg['attempts']} attempts = "
+          f"{len(points) * cfg['attempts']} attempts in {len(batches)} batch(es)", flush=True)
+    t0 = time.time()
+    jobs = [(cfg, b, slots, points, offsets[b], args.threads, out_dir) for b, slots in enumerate(batches)]
+    if args.workers > 1:
+        pool = ProcessPoolExecutor(max_workers=args.workers, mp_context=multiprocessing.get_context("spawn"))
+        results = [pool.submit(run_one, *job) for job in jobs]
+        for b, f in enumerate(results):
+            recs = f.result()
+            print(f"  batch {b + 1}/{len(batches)}: {sum(r['success'] for r in recs)}/{len(recs)} successes, "
+                  f"{time.time() - t0:.0f} s", flush=True)
+    else:
+        for job in jobs:
+            recs = run_one(*job)
+            print(f"  batch {job[1] + 1}/{len(batches)}: {sum(r['success'] for r in recs)}/{len(recs)} successes, "
+                  f"{time.time() - t0:.0f} s", flush=True)
+    merge(cfg, out_dir, len(batches), args.workers, time.time() - t0)
 
 
 if __name__ == "__main__":
